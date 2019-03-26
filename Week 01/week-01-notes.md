@@ -51,7 +51,7 @@ public class Graph {
 public class Graph {
   // Use bag data type
   private final int V;
-  private Bag<Integer>[] adj;
+  private final Bag<Integer>[] adj;
 
   // Create empty graph with V vertices
   public Graph(int V) {
@@ -208,3 +208,65 @@ public class BreadthFirstPaths {
   * *Strong connectivity* - is there a directed path between all pairs of vertices?
   * *Transitive closure* - for which vertices *v* and *w* is there a path from *v* to *w*?
   * *PageRank* - what is the importance of a web page?
+
+### Diagraph API
+* The diagraph API is as follows:
+```java
+public class Digraph {
+  // Create an empty diagraph with V vertices
+  Digraph(int V) {}
+
+  // Create a diagraph from input stream
+  Diagraph(In in) {}
+
+  // Add a directed edge v -> w
+  void addEdge(int v, int w) {}
+
+  // Vertices pointing from v
+  Iterable<Integer> adj (int v)
+
+  // Number of vertices
+  int V() {}
+
+  // Number of edges
+  int E() {}
+
+  // Reverse of this diagraph
+  Digraph reverse() {}
+
+  // String representation
+  String toString() {}
+}
+```
+
+* The Java implementation for the adjacency-list digraph representation is very similar to the graph representation, the main difference is in `addEdge()`:
+```java
+public class Digraph {
+  // Use bag data type
+  private final int V;
+  private final Bag<Integer>[] adj;
+
+  // Create empty digraph with V vertices
+  public Digraph(int V) {
+    this.V = V;
+    adj = (Bag<Integer>[]) new Bag[V];
+    for (int v = 0; v < V; v++) {
+      adj[v] = new Bag<Integer>();
+    }
+  }
+
+  // Add edge v->w
+  public void addEdge(int v, int w) {
+    adj[v].add(w);
+  }
+
+  // Iterator for vertices pointing from v
+  public Iterable<Integer> adj(int v) {
+    return adj[v];
+  }
+}
+```
+
+* In practice use adjacency-lists representation:
+  * Algorithms based on iterating over vertices pointing from *v*
+  * Real-world digraphs tend to be sparse (huge number of vertices, small average vertex degree)
