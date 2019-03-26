@@ -185,4 +185,12 @@ public class BreadthFirstPaths {
   * Mark vertex *v* as visited
   * Recursively visit all unmarked vertices adjacent to *v*
 
-###
+### Challenges
+* What are some challenges we face in graph-processing?
+  * Is a graph bipartite? DFS-based solution
+  * Find a cycle: DFS-based solution
+  * Find a (general) cycle that uses every edge exactly twice: Eulerian tour
+  * Find a cycle that visits every vertex exactly once: Hamiltonian cycle
+  * Are two graphs identical except for vertex names? Graph isomorphism (no one knows)
+  * Lay out a graph in the plane without crossing edges? Linear-time DFS-based planarity algorithm discovered by Tarjan in 1970s (too complicated for most practitioners)
+* The Seven Bridges of Konigsberg: is there a (general) cycle that uses each edge exactly twice? a connected graph is Eulerian if and only if all vertices have **even** degree
