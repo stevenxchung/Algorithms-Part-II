@@ -78,3 +78,59 @@ public class Graph {
 * In practice, use adjacency-lists representation:
   * Algorithms based on iterating over vertices adjacent to *v*
   * Real-world graphs tend to be **sparse** (huge number of vertices, small average vertex degree)
+
+### Depth-first Search
+* Take a maze graph for example:
+  * Each vertex is an intersection and each edge a passage
+  * The goal is to explore every intersection in the maze
+* Tremaux maze exploration:
+  * Unroll a ball of string behind you
+  * Mark each visited intersection and each visited passage
+  * Retrace steps when no unvisited options
+
+* DFS (Depth-first Search) is similar to this maze problem in that:
+  * Goal is to systematically search through a graph
+  * Find all vertices connected to a given source vertex
+  * Find a path between two vertices
+* The design pattern for graph processing is as follows:
+  * Decouple graph data type from graph processing
+  * Create a `Graph` object
+  * Pass the `Graph` to a graph-processing routine
+  * Query the graph-processing routine for information
+* DFS then becomes the following:
+  * Goal is to visit vertex *v*
+  * Mark vertex *v* as visited
+  * Recursively visit all unmarked vertices adjacent to *v*
+
+* DFS can be implemented in Java as follows:
+```java
+public class DepthFirstPaths {
+  // marked[v] = true if v connected to s
+  private boolean[] marked;
+  // edgeTo[v] = previous vertex on path from s to v
+  private int[] edgeTo;
+  private int s;
+
+  // Initialize data structures
+  public DepthFirstPaths(Graph G, int s) {
+    // ...
+    // Find vertices connected to s
+    dfs(G, s);
+  }
+
+  // Recursive DFS
+  private void dfs(Graph G, int v) {
+    marked[v] = true;
+    for (int w : G.adj(v)) {
+      if (!marked[w]) {
+        dfs(G, w);
+        edgeTo[w] = v;
+      }
+    }
+  }
+}
+```
+
+* DFS marks all vertices connected to *s* in time proportional to the sum of their degrees
+* Each vertex connect to *s* is visited once
+* After DFS, can find vertices connected to s in constant time and can find a path to *s* (if one exists) in time proportional to its length
