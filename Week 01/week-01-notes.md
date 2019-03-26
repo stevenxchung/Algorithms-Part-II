@@ -194,3 +194,17 @@ public class BreadthFirstPaths {
   * Are two graphs identical except for vertex names? Graph isomorphism (no one knows)
   * Lay out a graph in the plane without crossing edges? Linear-time DFS-based planarity algorithm discovered by Tarjan in 1970s (too complicated for most practitioners)
 * The Seven Bridges of Konigsberg: is there a (general) cycle that uses each edge exactly twice? a connected graph is Eulerian if and only if all vertices have **even** degree
+
+## Week 1: Directed Graphs
+
+> In this lecture we study directed graphs. We begin with depth-first search and breadth-first search in digraphs and describe applications ranging from garbage collection to web crawling. Next, we introduce a depth-first search based algorithm for computing the topological order of an acyclic digraph. Finally, we implement the Kosaraju-Sharir algorithm for computing the strong components of a digraph.
+
+### Introduction to Digraphs
+* *Digraph* - set of vertices connected pairwise by **directed** edges
+* Some digraph problems include:
+  * *Path* - is there a directed path from *s* to *t*?
+  * *Shortest path* - what is the shortest directed path from *s* to *t*?
+  * *Topological sort* - can you draw a digraph so that all edges point upwards?
+  * *Strong connectivity* - is there a directed path between all pairs of vertices?
+  * *Transitive closure* - for which vertices *v* and *w* is there a path from *v* to *w*?
+  * *PageRank* - what is the importance of a web page?
