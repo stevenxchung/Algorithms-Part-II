@@ -175,7 +175,8 @@ public class BreadthFirstPaths {
   * Vertices *v* and *w* are **connected** if there is a path between them
   * Goal: preprocess graph to answer queries of the form: *is v connected to w?* in **constant** time
   * Solution: use DFS
-* *Connected components* - a maximal set of connected values:
+* *Connected components* - a maximal set of connected values
+* The *is-connected-to* relation is an *equivalence relation* if:
   * Reflexive: *v* is connected to *v*
   * Symmetric: if *v* is connected to *w*, then *w* is connected to *v*
   * Transitive: if *v* is connected to *w* and *w* connected to *x*, then *v* connected to *x*
@@ -183,3 +184,5 @@ public class BreadthFirstPaths {
 * To visit a vertex *v*:
   * Mark vertex *v* as visited
   * Recursively visit all unmarked vertices adjacent to *v*
+
+###
