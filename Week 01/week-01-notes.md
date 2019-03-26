@@ -134,3 +134,38 @@ public class DepthFirstPaths {
 * DFS marks all vertices connected to *s* in time proportional to the sum of their degrees
 * Each vertex connect to *s* is visited once
 * After DFS, can find vertices connected to s in constant time and can find a path to *s* (if one exists) in time proportional to its length
+
+### Breadth-first Search
+* BFS (Breadth-first Search) is similar to DFS but we use a queue and we repeat the following process until queue is empty:
+  * Remove vertex *v* from queue
+  * Add to queue all unmarked vertices adjacent to *v* and mark them
+* *DFS* - put unvisited vertices on a **stack**
+* *BFS* - put unvisited vertices on a **queue**
+* *Shortest path* - find path from *s* to *t* that uses **fewest number of edges**
+* BFS computes shortest paths (fewest number of edges) from *s* to all other vertices in a graph in time proportional to *E + V*
+* Each vertex connected to *s* is visited once
+
+* BFS is implemented in Java as follows:
+```java
+public class BreadthFirstPaths {
+  private boolean[] marked;
+  private int[] edgeTo;
+  // …
+
+  private void bfs(Graph G, int s) {
+    Queue<Integer> q = new Queue<Integer>();
+    q.enqueue(s);
+    marked[s] = true;
+    while (!q.isEmpty()) {
+      int v = q.dequeue();
+      for (int w : G.adj(v)) {
+        if (!marked[w]) {
+          q.enqueue(w);
+          marked[w] = true;
+          edgeTo[w] = v;
+        }
+      }
+    }
+  }
+}
+```
