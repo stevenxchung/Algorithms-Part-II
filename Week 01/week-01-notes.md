@@ -270,3 +270,61 @@ public class Digraph {
 * In practice use adjacency-lists representation:
   * Algorithms based on iterating over vertices pointing from *v*
   * Real-world digraphs tend to be sparse (huge number of vertices, small average vertex degree)
+
+### Digraph Search
+* Reachability - find all vertices reachable from *s* along a directed path
+* DFS in digraphs:
+  * Same method as for undirected graphs
+  * Every undirected graph is a digraph (with edges in both directions)
+  * DFS is a **digraph** algorithm
+  * Recall DFS, for digraphs is slightly different (one direction):
+    * Marks vertex *v* as visited
+    * Recursively visits all unmarked vertices pointing from *v*
+
+* DFS implementation for digraphs is identical to DFS implementation for graphs:
+```java
+public class DirectedDFS {
+  // True if path from s
+  private boolean[] marked;
+  // Constructor marks vertices reachable from s
+  public DirectedDFS(Digraph G, int s) {
+    marked = new boolean[G.V()];
+    dfs(G, s);
+  }
+  // Recursive DFS does the work
+  private void dfs(Digraph G, int v) {
+    marked[v] = true;
+    for (int w: G.adj(v)) {
+      if (!marked[w]) {
+        dfs(G, w);
+      }
+    }
+  }
+  // Client can ask whether any vertex is reachable from s
+  public boolean visited(int v) {
+    return marked[v];
+  }
+}
+```
+
+* DFS enables direct solution of simple digraph problems:
+  * Reachability
+  * Path finding
+  * Topological sort
+  * Directed cycle detection
+* DFS forms the basis for solving difficult digraph problems:
+  * Two-satisfiability
+  * Directed Euler path
+  * Strongly-connected components
+
+* Similarly, BFS is same method as for undirected graphs:
+  * Every undirected graph is a digraph (with edges in both directions)
+  * BFS is a **digraph** algorithm
+* BFS computes shortest paths (fewest number of edges) from *s* to all other vertices in a digraph in time proportional to *E + V*
+* BFS works as follows for directed graphs:
+  * Repeat until queue is empty
+  * Remove vertex *v* from queue
+  * Add to queue all unmarked vertices point from *v* and mark them
+* For multiple-source shortest paths:
+  * Given a digraph and a **set** of source vertices
+  * Find shortest path from any vertex in the set to each other vertex
