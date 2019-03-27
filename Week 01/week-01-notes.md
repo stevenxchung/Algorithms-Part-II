@@ -358,7 +358,7 @@ public class DirectedDFS {
     * Run DFS, considering vertices in reverse topological order
   * *Phase 1* - compute reverse postorder in *G^R*
   * *Phase 2* - run DFS in *G*, visiting unmarked vertices in reverse postorder of *G^R*
-* Another way to implement a variation of the Kosaraju-Sharir algorithm:
+* Another way to implement the Kosaraju-Sharir algorithm:
   * *Phase 1* - run DFS on *G^R* to compute reverse postorder
   * *Phase 2* - run DFS on *G*, considering vertices in order given by first DFS
 * An observation of the Kosaraju-Sharir algorithm is that it computers the strong components of a digraph in time proportional to *E + V*
