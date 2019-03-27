@@ -341,3 +341,93 @@ public class DirectedDFS {
 * Some observations:
   * Reverse DFS postorder of a DAG is a topological order
   * A digraph has a topological order if and only if no directed cycle
+
+### Strong Components
+* Vertices *v* and *w* are **strongly connected** if there is both a directed path from *v* to *w* **and** a directed path from *w* to *v*
+* Strong connectivity is an **equivalence relation**:
+  * *v* is strongly connected to *v*
+  * If *v* is strongly connected to *w*, then *w* is strongly connected to *v*
+  * If *v* is strongly connected to *w* and *w* to *x*, then *v* is strongly connected to *x*
+* A **strong component** is a maximal subset of strongly-connected vertices
+
+* Kosaraju-Sharir algorithm:
+  * *Reverse graph* - strong components in *G* are same as in *G^R*
+  * *Kernel DAG* - contract each strong component into a single vertex
+  * *Idea*:
+    * Compute topological order (reverse postorder) in kernel DAG
+    * Run DFS, considering vertices in reverse topological order
+  * *Phase 1* - compute reverse postorder in *G^R*
+  * *Phase 2* - run DFS in *G*, visiting unmarked vertices in reverse postorder of *G^R*
+* Another way to implement a variation of the Kosaraju-Sharir algorithm:
+  * *Phase 1* - run DFS on *G^R* to compute reverse postorder
+  * *Phase 2* - run DFS on *G*, considering vertices in order given by first DFS
+* An observation of the Kosaraju-Sharir algorithm is that it computers the strong components of a digraph in time proportional to *E + V*
+
+* Recall DFS implementation for connected components in an undirected graph:
+```java
+public class CC {
+  private boolean marked[];
+  private int[] id;
+  private int count;
+
+  public CC(Graph G) {
+    marked = new boolean[G.V()];
+    id = new int[G.V()];
+    for (int v = 0; v < G.V(); v++) {
+      if (!marked[v]) {
+        dfs(G, v);
+        count++;
+      }
+    }
+  }
+
+  private void dfs(Graph G, int v) {
+    marked[v] = true;
+    id[v] = count;
+    for (int w: G.adj(v)) {
+      if (!marked[w]) {
+        dfs(G, w);
+      }
+    }
+  }
+
+  public boolean connected(int v, int w) {
+    return id[v] == id[w];
+  }
+}
+```
+
+* For strong components in a digraph we could use two DFS:
+```java
+public class KosarajuSharirSCC {
+  private boolean marked[];
+  private int[] id;
+  private int count;
+
+  public KosarajuSharirSCC(Digraph G) {
+    marked = new boolean[G.V()];
+    id = new int[G.V()];
+    DepthFirstOrder dfs = new DepthFirstOrder(G.reverse());
+    for (int v: dfs.reversePost()) {
+      if (!marked[v]) {
+        dfs(G, v);
+        count++;
+      }
+    }
+  }
+
+  private void dfs(Digraph G, int v) {
+    marked[v] = true;
+    id[v] = count;
+    for (int w: G.adj(v)) {
+      if (!marked[w]) {
+        dfs(G, w);
+      }
+    }
+  }
+
+  public boolean stronglyConnected(int v, int w) {
+    return id[v] == id[w];
+  }
+}
+```
