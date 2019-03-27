@@ -286,11 +286,13 @@ public class Digraph {
 public class DirectedDFS {
   // True if path from s
   private boolean[] marked;
+
   // Constructor marks vertices reachable from s
   public DirectedDFS(Digraph G, int s) {
     marked = new boolean[G.V()];
     dfs(G, s);
   }
+
   // Recursive DFS does the work
   private void dfs(Digraph G, int v) {
     marked[v] = true;
@@ -300,6 +302,7 @@ public class DirectedDFS {
       }
     }
   }
+
   // Client can ask whether any vertex is reachable from s
   public boolean visited(int v) {
     return marked[v];
@@ -328,3 +331,13 @@ public class DirectedDFS {
 * For multiple-source shortest paths:
   * Given a digraph and a **set** of source vertices
   * Find shortest path from any vertex in the set to each other vertex
+
+### Topological Sort
+* *DAG* - directed acyclic graph
+* *Topological sort* - redraw DAG so all edges point upwards (use DFS)
+* Topological sort works as follows:
+  * Run DFS
+  * Return vertices in reverse postorder
+* Some observations:
+  * Reverse DFS postorder of a DAG is a topological order
+  * A digraph has a topological order if and only if no directed cycle
