@@ -1,4 +1,4 @@
-// Nonrecursive Depth-frst Search
+// Nonrecursive Depth-first Search
 // Pseudo-code
 
 public class NonrecursiveDFS {
