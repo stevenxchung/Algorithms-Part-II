@@ -15,6 +15,13 @@ public class SAP {
         }
     }
 
+    // Helper function to check Iterable null arguments
+    private void isNullDualArgs(Iterable<Integer> arg1, Iterable<Integer> arg2) {
+        if (arg1 == null || arg2 == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+    }
+
     // Helper function to check if vertex is out of bounds
     private void isOutOfBounds(int arg) {
         if (arg < 0 || arg > digraph.V()) {
@@ -38,7 +45,7 @@ public class SAP {
             }
         }
 
-        return new int[] { len, ancestor };
+        return new int[]{len, ancestor};
     }
 
     // Invert both array entries if first entry is max
@@ -85,9 +92,8 @@ public class SAP {
 
     // Length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        // Check null
-        isNull(v);
-        isNull(w);
+        // Check null for double args
+        isNullDualArgs(v, w);
         // Create new BFS
         BreadthFirstDirectedPaths aBFS = new BreadthFirstDirectedPaths(digraph, v);
         BreadthFirstDirectedPaths bBFS = new BreadthFirstDirectedPaths(digraph, w);
@@ -97,9 +103,8 @@ public class SAP {
 
     // A common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        // Check null
-        isNull(v);
-        isNull(w);
+        // Check null for double args
+        isNullDualArgs(v, w);
         // Create new BFS
         BreadthFirstDirectedPaths aBFS = new BreadthFirstDirectedPaths(digraph, v);
         BreadthFirstDirectedPaths bBFS = new BreadthFirstDirectedPaths(digraph, w);
