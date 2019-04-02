@@ -237,3 +237,7 @@ public class IndexMinPQ<Key extends Comparable<Key>> {
   * Given *N* points in the plane, find MST connecting them, where the distances between point pairs are their **Euclidean** distances
 * In clustering, we divide a set of objects and classify into *k* coherent groups, we use a **distance function** to specify *closeness* of two objects
   * Goal of clustering is to get objects in different clusters far apart
+
+## Week 2: Shortest Paths
+
+> In this lecture we study shortest-paths problems. We begin by analyzing some basic properties of shortest paths and a generic algorithm for the problem. We introduce and analyze Dijkstra's algorithm for shortest-paths problems with non-negative weights. Next, we consider an even faster algorithm for DAGs, which works even if the weights are negative. We conclude with the Bellman–Ford–Moore algorithm for edge-weighted digraphs with no negative cycles. We also consider applications ranging from content-aware fill to arbitrage.
