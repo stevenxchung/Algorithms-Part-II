@@ -1,4 +1,5 @@
 import edu.princeton.cs.algs4.Picture;
+
 import java.awt.Color;
 
 public class SeamCarver {
@@ -6,10 +7,28 @@ public class SeamCarver {
     private boolean flippedY;
     private boolean flippedX;
     private double[][] energyStore;
-    private int[][] colorStore;
+    private Color[][] colorStore;
     // Height and width of image respectively
     private int h;
     private int w;
+
+    // Helper function to check boundaries
+//    private void isInBounds(int[] seam) {
+//        // Check height and width
+//        if (height() <= 1 || width() <= 1) {
+//            throw new java.lang.IllegalArgumentException();
+//        }
+//        // Check seam length
+//        if (seam.length <= 1) {
+//            throw new java.lang.IllegalArgumentException();
+//        }
+//        // Check row index
+//        for (int i = 0; i < seam.length - 1; i++) {
+//            if (1 < Math.abs(seam[i] - seam[i + 1])) {
+//                throw new java.lang.IllegalArgumentException();
+//            }
+//        }
+//    }
 
     // Helper function to return correct height depending if vertical is transposed
     private int legitHeight() {
@@ -32,19 +51,19 @@ public class SeamCarver {
     // Helper function to compute energy of a pixel
     private void dualGradientEnergy(int a, int b) {
         // Check borders first
-        if (a == 0 || b == 0 || a == legitHeight() - 1 || b == legitWidth() - 1) {
+        if (a == 0 || a == legitHeight() - 1 || b == 0 || b == legitWidth() - 1) {
             energyStore[a][b] = 1000.0;
         } else {
             // Get values for each red, green, and blue for horizontal and vertical components
-            int rX = ((colorStore[a][b - 1] & (0xff << 16)) >> 16) - ((colorStore[a][b + 1] & (0xff << 16)) >> 16);
-            int rY = ((colorStore[a - 1][b] & (0xff << 16)) >> 16) - ((colorStore[a + 1][b] & (0xff << 16)) >> 16);
-            int gX = ((colorStore[a][b - 1] & (0xff << 8)) >> 8) - ((colorStore[a][b + 1] & (0xff << 8)) >> 8);
-            int gY = ((colorStore[a - 1][b] & (0xff << 8)) >> 8) - ((colorStore[a + 1][b] & (0xff << 8)) >> 8);
-            int bX = (colorStore[a][b - 1] & (0xff)) - (colorStore[a][b + 1] & (0xff));
-            int bY = (colorStore[a - 1][b] & (0xff)) - (colorStore[a + 1][b] & (0xff));
+            int rX = colorStore[a][b - 1].getRed() - colorStore[a][b + 1].getRed();
+            int rY = colorStore[a - 1][b].getRed() - colorStore[a + 1][b].getRed();
+            int gX = colorStore[a][b - 1].getGreen() - colorStore[a][b + 1].getGreen();
+            int gY = colorStore[a - 1][b].getGreen() - colorStore[a + 1][b].getGreen();
+            int bX = colorStore[a][b - 1].getBlue() - colorStore[a][b + 1].getBlue();
+            int bY = colorStore[a - 1][b].getBlue() - colorStore[a + 1][b].getBlue();
 
             // Apply dual-gradient formula given in assignment
-            energyStore[a][b] = Math.sqrt((Math.pow(rX, 2) + Math.pow(rY, 2) + Math.pow(gX, 2) + Math.pow(gY, 2) + Math.pow(bX, 2) + Math.pow(bY, 2)));
+            energyStore[a][b] = Math.sqrt((double) (rX * rX + rY * rY + gX * gX + gY * gY + bX * bX + bY * bY));
         }
     }
 
@@ -52,21 +71,26 @@ public class SeamCarver {
     private void revertFlip() {
         flippedY = !flippedY;
         double[][] flippedEnergyStore = new double[legitHeight()][legitWidth()];
-        int[][] flippedColorStore = new int[legitHeight()][legitWidth()];
+        Color[][] flippedColorStore = new Color[legitHeight()][legitWidth()];
         // Loop through each pixel and flip the result
         for (int i = 0; i < legitWidth(); i++) {
             for (int j = 0; j < legitHeight(); j++) {
-                flippedEnergyStore[j][i] = energyStore[i][j];
                 flippedColorStore[j][i] = colorStore[i][j];
+                flippedEnergyStore[j][i] = energyStore[i][j];
             }
         }
         // Set stores after swap
-        energyStore = flippedEnergyStore;
         colorStore = flippedColorStore;
+        energyStore = flippedEnergyStore;
     }
 
     // Helper function to relax edges, see lecture notes on edge relaxation
     private void relaxEdge(double[][] distTo, int[][] edgeTo, int a, int b) {
+        // Check if shortest path by input (a, b) with energy store at (a + 1, b - 1) is less than path length a + 1 to b -1
+        if (distTo[a][b] + energyStore[a + 1][b - 1] < distTo[a + 1][b - 1]) {
+            edgeTo[a + 1][b - 1] = b;
+            distTo[a + 1][b - 1] = distTo[a][b] + energyStore[a + 1][b - 1];
+        }
         // Check if shortest path by input (a, b) with energy store at (a + 1, b) is less than path length a + 1 to b
         if (distTo[a][b] + energyStore[a + 1][b] < distTo[a + 1][b]) {
             edgeTo[a + 1][b] = b;
@@ -77,42 +101,43 @@ public class SeamCarver {
             edgeTo[a + 1][b + 1] = b;
             distTo[a + 1][b + 1] = distTo[a][b] + energyStore[a + 1][b + 1];
         }
-        // Check if shortest path by input (a, b) with energy store at (a + 1, b - 1) is less than path length a + 1 to b -1
-        if (distTo[a][b] + energyStore[a + 1][b - 1] < distTo[a + 1][b - 1]) {
-            edgeTo[a + 1][b - 1] = b;
-            distTo[a + 1][b - 1] = distTo[a][b] + energyStore[a + 1][b - 1];
-        }
     }
 
     // Helper function to clear stores
     private void clearStores() {
-        int[][] tempColorStore = new int[legitHeight()][legitWidth()];
-        double[][] newEnergy = new double[legitHeight()][legitWidth()];
+        Color[][] tempColorStore = new Color[legitHeight()][legitWidth()];
+        double[][] tempEnergyStore = new double[legitHeight()][legitWidth()];
         for (int i = 0; i < legitHeight(); i++) {
             for (int j = 0; j < legitWidth(); j++) {
-                newEnergy[i][j] = energyStore[i][j];
                 tempColorStore[i][j] = colorStore[i][j];
+                tempEnergyStore[i][j] = energyStore[i][j];
             }
         }
-        energyStore = newEnergy;
         colorStore = tempColorStore;
+        energyStore = tempEnergyStore;
     }
 
     // Create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
         // Create stores and image property values
+        colorStore = new Color[picture.height()][picture.width()];
+        energyStore = new double[picture.height()][picture.width()];
         h = picture.height();
         w = picture.width();
-        energyStore = new double[h][w];
-        colorStore = new int[h][w];
         // Initialize vertical transpose to false
         flippedY = false;
 
-        // Construct energy and color stores
-        for (int i = 0; i < width(); i++) {
-            for (int j = 0; j < height(); j++) {
-                colorStore[i][j] = picture.get(i, j).getRGB();
-                // NOTE: May need to split this into two loops the way energy is computed
+        // NOTE: Tempting to simplify but need to split this into two loops the way energy is computed
+        // Construct color store
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
+                colorStore[i][j] = picture.get(j, i);
+            }
+        }
+
+        // Construct energy store
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
                 dualGradientEnergy(i, j);
             }
         }
@@ -129,10 +154,10 @@ public class SeamCarver {
         // Loop through each pixel and set colors
         for (int i = 0; i < width(); i++) {
             for (int j = 0; j < height(); j++) {
-                tempPicture.set(i, j, new Color(colorStore[j][i]));
+                tempPicture.set(i, j, colorStore[j][i]);
             }
         }
-        clearStores();
+
         return tempPicture;
     }
 
@@ -148,18 +173,23 @@ public class SeamCarver {
 
     // Energy of pixel at column x and row y
     public double energy(int x, int y) {
+        // Check bounds
+        if (x < 0 || x > width() - 1 || y < 0 || y > height() - 1) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
         // Only return energy at (x, y) if image is vertically transposed
-        if (flippedY) {
-            return energyStore[x][y];
-        } else {
+        if (!flippedY) {
             return energyStore[y][x];
+        } else {
+            return energyStore[x][y];
         }
     }
 
     // Sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        // First we check if there is any vertical transpose and if so, revert
-        if (flippedY) {
+        // First we check if there is any vertical transpose
+        if (!flippedY) {
             revertFlip();
         }
         // Set horizontal transpose to true
@@ -227,8 +257,9 @@ public class SeamCarver {
         // We use the lower bound index to determine edges on the vertical seam
         for (int i = legitHeight() - 1; i >= 0; i--) {
             verticalSeam[i] = lowerBoundIndex;
-            if (lowerBoundIndex != -1)
+            if (lowerBoundIndex != -1) {
                 lowerBoundIndex = edgeTo[i][lowerBoundIndex];
+            }
         }
 
         return verticalSeam;
@@ -236,6 +267,8 @@ public class SeamCarver {
 
     // Remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        // Check bounds
+        // isInBounds(seam);
         // Very similar to finding the horizontal seam, still check for vertical transpose
         if (!flippedY) {
             revertFlip();
@@ -248,6 +281,8 @@ public class SeamCarver {
 
     // Remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        // Check bounds
+        // isInBounds(seam);
         // First we check if there is any transpose and if so, revert
         if (flippedY && !flippedX) {
             revertFlip();
@@ -273,11 +308,11 @@ public class SeamCarver {
             }
             // If not equal, copy over values from energy and color store
             if (seam[i] != legitWidth() - 1) {
-                System.arraycopy(energyStore[i], seam[i] + 1, energyStore[i], seam[i], legitWidth() - seam[i] - 1);
                 System.arraycopy(colorStore[i], seam[i] + 1, colorStore[i], seam[i], legitWidth() - seam[i] - 1);
+                System.arraycopy(energyStore[i], seam[i] + 1, energyStore[i], seam[i], legitWidth() - seam[i] - 1);
             }
+            colorStore[i][legitWidth() - 1] = null;
             energyStore[i][legitWidth() - 1] = -1.0;
-            colorStore[i][legitWidth() - 1] = -1;
         }
         // Now we check for horizontal transpose and then decrement either height or width
         if (flippedX) {
@@ -295,5 +330,6 @@ public class SeamCarver {
                 dualGradientEnergy(i, seam[i]);
             }
         }
+        clearStores();
     }
 }
