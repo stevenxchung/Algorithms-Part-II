@@ -266,3 +266,171 @@ public class FordFulkerson {
   * Practice: solve real-world maxflow/mincut problems in linear time
   * Theory: prove it for worst-case inputs
   * Conclusion: there is still much to be learned for maxflow/mincut
+
+## Week 2: Radix Sorts
+
+> In this lecture we consider specialized sorting algorithms for strings and related objects. We begin with a subroutine to sort integers in a small range. We then consider two classic radix sorting algorithms—LSD and MSD radix sorts. Next, we consider an especially efficient variant, which is a hybrid of MSD radix sort and quicksort known as 3-way radix quicksort. We conclude with suffix sorting and related applications.
+
+### Strings in Java
+* Strings are a sequence of characters
+* The `String` data type in Java is immutable (see lecture slides for implementation)
+* Underlying implementation is immutable `char[]` array, offset, and length
+* Some operations on strings include:
+  * **Length** - number of characters
+  * **Indexing** - get the *ith* character
+  * **Substring extraction** - get a contiguous subsequence of characters
+  * **String concatenation** - append one character to end of another string.
+* Unlike `String`, the `StringBuilder` data type is mutable
+* Underlying implementation is resizing `char[]` array and length
+* For alphabets, strings can be:
+  * **Digital key** - sequence of digits over fixed alphabet
+  * **Radix** - number of digits *R* in alphabet
+
+### Key-indexed Counting
+* Frequency of operations = key compares
+* Some assumptions about keys:
+  * Keys are integers between 0 and *R - 1*
+  * Can use key as an array index
+* Applications of keys extend to:
+  * Sort string by first letter
+  * Sort class roster by section
+  * Sort phone numbers by area code
+  * Subroutine in a sorting algorithm
+* Note: keys may have associated data which means that we can't just count up number of keys of each value
+
+* For key-indexed counting we want to sort an array `a[]` of *N* integers between 0 and *R - 1* by performing the following:
+  * Count frequencies of each letter using key as index
+  * Compute frequency cumulates which specify destinations
+  * Access cumulates using key as index to move items
+  * Copy back into original array
+
+* The Java implementation of key-indexed counting is as follows:
+```java
+int N = a.length;
+int[] count = new int[R + 1];
+
+for (int i = 0; i < N; i++) {
+  count[a[i] + 1]++;
+}
+
+for (int r = 0; r < R; r++) {
+  count[r + 1] += count[r];
+}
+
+for (int i = 0; i < N; i++) {
+  aux[count[a[i]]++] = a[i];
+}
+
+for (int i = 0; i < N; i++) {
+  a[i] = aux[i];
+}
+```
+
+* In summary, for key-indexed counting:
+  * Key-indexed counting uses ~ *11 * N + 4 * R* array accesses to sort *N* items whose keys are integers between 0 and *R - 1*
+  * Key-indexed counting uses extra space proportional to *N + R*
+
+### LSD Radix Sort
+* LSD (least-significant-digit-first string sort) works as follows:
+  * Consider characters from right to left
+  * Stably sort using *dth* character as the key (using key-indexed counting)
+* LSD sorts fixed-length strings in ascending order
+
+* LSD string sort can be implemented in Java as follows:
+```java
+public class LSD {
+  // Fixed-length W strings
+  public static void sort(String[] a, int W) {
+    // Radix R
+    int R = 256;
+    int N = a.length;
+    String[] aux = new String[N];
+
+    // Do key-indexed counting for each digit from right to left
+    for (int d = W - 1; d >= 0; d--) {
+      // Key-indexed counting
+      int[] count = new int[R + 1];
+      for (int i = 0; i < N; i++) {
+        count[a[i].charAt(d) + 1]++;
+      }
+      for (int r = 0; r < R; r++) {
+        count[r + 1] += count[r];
+      }
+      for (int i = 0; i < N; i++) {
+        aux[count[a[i].charAt(d)]++] = a[i];
+      }
+      for (int i = 0; i < N; i++) {
+        a[i] = aux[i];
+      }
+    }
+  }
+}
+```
+
+* LSD sort serves as the foundation for applications such as:
+  * 1890: census used sorting machine developed by Herman Hollerith to automate sorting
+  * 1900s-19050s: punch cards were used for data entry, storage, and processing
+  * Mainframe
+  * Line printer
+
+### MSD Radix Sort
+* MSD (most-significant-digit-first string sort) works as follows:
+  * Partition array into *R* pieces according to first character (use key-indexed counting)
+  * Recursively sort all strings that start with each character (key-indexed counts delineate sub-arrays to sort)
+
+* MSD string sort can be implemented in Java as follows:
+```java
+  public static void sort(String[] a) {
+    aux = new String[a.length];
+    sort(a, aux, 0, a.length-1, 0);
+  }
+
+  private static void sort(String[] a, String[] aux, int lo, int hi, int d) {
+    if (hi <= lo) {
+      return;
+    }
+    // Key-indexed counting
+    int[] count = new int[R + 2];
+    for (int i = lo; i <= hi; i++) {
+      count[charAt(a[i], d) + 2]++;
+    }
+    for (int r = 0; r < R + 1; r++) {
+      count[r + 1] += count[r];
+    }
+    for (int i = lo; i <= hi; i++) {
+      aux[count[charAt(a[i], d) + 1]++] = a[i];
+    }
+    for (int i = lo; i <= hi; i++) {
+      a[i] = aux[i - lo];
+    }
+
+    // Sort R sub-arrays recursively
+    for (int r = 0; r < R; r++) {
+      sort(a, aux, lo + count[r], lo + count[r+1] - 1, d+1);
+    }
+  }
+```
+
+* MSD has a potential for disastrous performance:
+  * Much too slow for small sub-arrays, each function call needs its own `count[]` array
+  * Huge number of small sub-arrays because of recursion
+
+* We can cutoff MSD to insertion sort for small sub-arrays:
+  * Insertion sort, but start at *dth* character
+  * Implement `less()` so that it compares starting at *dth* character
+
+* The performance of MSD can be summarized as follows:
+  * MSD examines just enough characters to sort the keys
+  * Number of characters examined depends on keys
+  * Can be sub-linear in input size
+
+* MSD string sort vs quicksort for strings:
+  * MSD sort:
+    * Extra space for `aux[]`
+    * Extra space for `count[]`
+    * Inner loop has a lot of instructions
+    * Accesses memory "randomly" (cache inefficient)
+  * Quicksort:
+    * Linearithmic number of string compares (not linear)
+    * Has to re-scan many characters in keys with long prefix matches
+* We can actually combine the advantages of MSD and quicksort however (stay tuned)
