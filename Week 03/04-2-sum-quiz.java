@@ -2,14 +2,8 @@
 // Pseudo-code
 
 public class TwoSum {
-  // Helper function to check bottleneck capacity of a path
-  private boolean isBottleneckCapacity(FlowEdge e) {}
-
-  // Helper function to determine if bottleneck capacity is maximum
-  private boolean isTwoSum(FlowEdge e) {}
-
-  // Build Tree
-  public TwoSum(EdgeWeightedDigraph G) {}
+  // Determine if i and j are distinct in array a and that i + j = T
+  public boolean isDistinct(int[] a, int i, int j, int T) {}
 
   // Tests
   public static void main(String[] args) {}
