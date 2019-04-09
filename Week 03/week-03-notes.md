@@ -434,3 +434,96 @@ public class LSD {
     * Linearithmic number of string compares (not linear)
     * Has to re-scan many characters in keys with long prefix matches
 * We can actually combine the advantages of MSD and quicksort however (stay tuned)
+
+### Three-way Radix Quicksort
+* **Goal** - do three-way partitioning on the *dth* character:
+  * Less overhead than *R*-way partitioning in MSD string sort
+  * Does not re-examine characters equal to the partitioning char (but does re-examine characters not equal to the partitioning char)
+
+* The three-way string quicksort could be implemented as follows:
+```java
+private static void sort(String[] a) {
+  sort(a, 0, a.length - 1, 0);
+}
+
+private static void sort(String[] a, int lo, int hi, int d) {
+  // Three-way partitioning (using dth character)
+  if (hi <= lo) {
+    return;
+  }
+  int lt = lo, gt = hi;
+  int v = charAt(a[lo], d);
+  int i = lo + 1;
+  while (i <= gt) {
+    int t = charAt(a[i], d);
+    if (t < v) {
+      exch(a, lt++, i++);
+    }
+    else if (t > v) {
+      exch(a, i, gt--);
+    }
+    else {
+      i++;
+    }
+  }
+
+  sort(a, lo, lt-1, d);
+  if (v >= 0) {
+    sort(a, lt, gt, d+1);
+  }
+  sort(a, gt+1, hi, d);
+}
+```
+
+* Three-way string quicksort versus standard quicksort:
+  * Standard quicksort:
+    * Uses ~ *2 * N * log(N)* string compares on average
+    * Costly for keys with long common prefixes (and this is a common case!)
+  * Three-way string quicksort:
+    * Uses ~ *2 * N * log(N)* character compares on average for random strings
+    * Avoids re-comparing long common prefixes.
+
+* Three-way string quicksort versus MSD string sort:
+  * MSD string sort:
+    * Is cache-inefficient
+    * Too much memory storing `count[]`
+    * Too much overhead re-initializing `count[]` and `aux[]`
+  * Three-way string quicksort:
+    * Has a short inner loop
+    * Is cache-friendly
+    * Is in-place
+
+* We can conclude that three-way string quicksort is the method of choice for sorting strings
+
+### Suffix Arrays
+* **Problem** - given a text of *N* characters, preprocess it to enable fast substring search
+(find all occurrences of query string context)
+* **Applications** - linguistics, databases, web search, word processing, etc.
+* One way to solve this problem is to use suffix-sorting algorithm:
+  * Preprocess: **suffix sort** the text
+  * Query: **binary search** for query; scan until mismatch
+* Worst case input for suffix sorting is when longest repeated substring is very long:
+  * E.g., same letter repeated *N* times
+  * E.g., two copies of the same Java codebase
+* LRS (longest repeated substring) needs at least 1 + 2 + 3 + ... + *D* character compares, where *D* = length of longest match
+* The run-time of the worst case is quadratic or worse in *D* for LRS (and also for sort)
+
+* To do suffix sorting in linearithmic time we apply Manber-Myers MSD algorithm:
+  * Phase 0: sort on first character using key-indexed counting sort
+  * Phase *i*: given array of suffixes sorted on first *2^(i - 1)* characters, create array of suffixes sorted on first *2^i* characters
+* Worst case run-time for Manber-Myers MSD is *N * log(N)*:
+  * Finishes after *log(N)* phases
+  * Can perform a phase in linear time however
+
+* We can summarize sting sorts as follows:
+  * Linear-time sorts:
+    * Key compares not necessary for string keys
+    * Use characters as index in an array
+  * Sub-linear-time sorts:
+    * Input size is amount of data in keys (not number of keys)
+    * Not all of the data has to be examined
+  * Three-way string quicksort is asymptotically optimal:
+    * *1.39 * N * log(N)* chars for random data
+  * Long stings are rarely random in practice:
+    * Goal is often to learn the structure!
+    * May need specialized algorithms
