@@ -193,9 +193,9 @@ public class FlowNetwork {
 * Using *FlowEdge* we can implement the Ford-Fulkerson algorithm in Java
 ```java
 public class FordFulkerson {
-  // True if s->v path in residual network
+  // True if s -> v path in residual network
   private boolean[] marked;
-  // Last edge on s->v path
+  // Last edge on s -> v path
   private FlowEdge[] edgeTo;
   // Value of flow
   private double value;
@@ -260,7 +260,7 @@ public class FordFulkerson {
   * Maxflow problem tries to find an *st*-flow of maximum value
   * Duality is when the value of the maxflow = capacity of mincut
 * Proven successful approaches to the maxflow/mincut problem includes:
-  * Ford-Fulkerson (various augmenting-path strategies
+  * Ford-Fulkerson (various augmenting-path strategies)
   * Preflow-push (various versions)
 * Still there remain challenges for this category of problems:
   * Practice: solve real-world maxflow/mincut problems in linear time
