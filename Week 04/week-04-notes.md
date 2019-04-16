@@ -354,3 +354,7 @@ private int search(Node x, String query, int d, int length) {
     * Performance guarantee: *log(N)* **characters** accessed
     * Supports character-based operations
 * **Bottom line** - you can get at anything by examining 50-100 bits
+
+## Week 4: Substring Search
+
+> In this lecture we consider algorithms for searching for a substring in a piece of text. We begin with a brute-force algorithm, whose running time is quadratic in the worst case. Next, we consider the ingenious Knuth–Morris–Pratt algorithm whose running time is guaranteed to be linear in the worst case. Then, we introduce the Boyer–Moore algorithm, whose running time is sublinear on typical inputs. Finally, we consider the Rabin–Karp fingerprint algorithm, which uses hashing in a clever way to solve the substring search and related problems.
