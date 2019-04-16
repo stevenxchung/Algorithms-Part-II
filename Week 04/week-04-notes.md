@@ -358,3 +358,192 @@ private int search(Node x, String query, int d, int length) {
 ## Week 4: Substring Search
 
 > In this lecture we consider algorithms for searching for a substring in a piece of text. We begin with a brute-force algorithm, whose running time is quadratic in the worst case. Next, we consider the ingenious Knuth–Morris–Pratt algorithm whose running time is guaranteed to be linear in the worst case. Then, we introduce the Boyer–Moore algorithm, whose running time is sublinear on typical inputs. Finally, we consider the Rabin–Karp fingerprint algorithm, which uses hashing in a clever way to solve the substring search and related problems.
+
+### Introduction to Substring Search
+* **Goal** - find a pattern of length *M* in a text of length *N* (typically *N* >> *M*)
+* Applications of substring search:
+  * **Computer forensics** - search memory or disks for signatures
+  * **Identify patterns indicative of spam**
+  * **Electronic surveillance**
+  * **Screen scraping** - extract relevant data from web page
+
+### Brute-force Substring Search
+* Check for pattern starting at each text position
+* Brute-force algorithm can be slow if text and pattern are repetitive
+* Worst-case run-time: *M * N* character compares
+* Brute-force is not always good enough:
+  * **Theoretical challenge** - linear-time guarantee
+  * **Practical challenge** - avoid backup in text stream
+
+### Knuth-Morris-Pratt
+* A clever method to always avoid backup, here is how it works:
+  * Suppose we are searching in text for pattern `BAAAAAAAAA`
+  * Suppose we match 5 chars in pattern, with mismatch on 6th char
+  * We know previous 6 chars in text are BAAAAB
+  * Don't need to back up text pointer!
+* DFA (Deterministic Finite State Automaton) is an abstract string-searching machine:
+  * Finite number of states (including start and halt)
+  * Exactly one transition for each char in alphabet
+  * Accept if sequence of transitions leads to halt state
+* A key difference between Knuth-Morris-Pratt substring search and brute-force is that:
+  * Need to precompute `dfa[][]` from pattern
+  * Text pointer `i` never decrements
+* DFA on text is at most *N* character accesses
+
+* We can also add an input stream for DFA:
+```java
+public int search(In in) {
+  int i, j;
+  for (i = 0, j = 0; !in.isEmpty() && j < M; i++) {
+    // No backup
+    j = dfa[in.readChar()][j];
+  }
+  if (j == M) {
+    return i - M;
+  } else {
+    return NOT_FOUND;
+  }
+}
+```
+
+* Here is how we construct the DFA for KMP (Knuth-Morris-Pratt) substring search:
+```java
+public KMP(String pat) {
+  this.pat = pat;
+  M = pat.length();
+  dfa = new int[R][M];
+  dfa[pat.charAt(0)][0] = 1;
+  for (int X = 0, j = 1; j < M; j++) {
+    for (int c = 0; c < R; c++) {
+      // Copy mismatch cases
+      dfa[c][j] = dfa[c][X];
+    }
+    // Set match case
+    dfa[pat.charAt(j)][j] = j + 1;
+    // Update restart state
+    X = dfa[pat.charAt(j)][X];
+  }
+}
+```
+
+* The run-time of DFA KMP substring search is *M* character accesses (but space/time proportional to *R * M*)
+
+* KMP substring search analysis:
+  * KMP substring search accesses no more than *M + N* chars to search for a pattern of length *M* in a text of length *N*
+  * KMP constructs `dfa[][]` in time and space proportional *R * M*
+  * Improved version of KMP constructs `nfa[][]` in time and space proportional to *M*
+
+### Boyer-Moore
+* **Intuition**:
+  * Scan characters in pattern from right to left
+  * Can skip as many as *M* text chars when finding one not in the pattern
+
+* Below is a implementation of Boyer-Moore in Java:
+```java
+public int search(String txt) {
+  int N = txt.length();
+  int M = pat.length();
+  int skip;
+  for (int i = 0; i <= N - M; i += skip) {
+    skip = 0;
+    for (int j = M - 1; j >= 0; j--) {
+      if (pat.charAt(j) != txt.charAt(i + j)) {
+        // Use 1 in case other term is not positive and compute skip value
+        skip = Math.max(1, j - right[txt.charAt(i + j)]);
+        break;
+      }
+    }
+    if (skip == 0) {
+      // Match
+      return i;
+    }
+  }
+  return N;
+}
+```
+
+* Run-time analysis of Boyer-Moore:
+  * Substring search with the Boyer-Moore mismatched character heuristic takes about ~ *N / M* character compares to search for a pattern of length *M* in a text of length *N*
+  * Worst-case can be as bad as ~ *M * N*
+  * Boyer-Moore variant does improve worst case to ~ *3 * N* character compares by adding a KMP-like rule to guard against repetitive patterns
+
+### Rabin-Karp
+* **Basic idea = modular hashing**:
+  * Compute a hash of pattern characters 0 to `M - 1`
+  * For each `i`, compute a hash of text characters `i` to` M + i - 1`
+  * If pattern hash = text substring hash, check for a match
+
+* Rabin-Karp is implemented as follows:
+```java
+public class RabinKarp {
+  // Pattern hash value
+  private long patHash;
+  // Pattern length
+  private int M;
+  // Modulus
+  private long Q;
+  // Radix
+  private int R;
+  // R^(M-1) % Q
+  private long RM;
+
+  public RabinKarp(String pat) {
+    M = pat.length();
+    R = 256;
+    // A large prime (but avoid overflow)
+    Q = longRandomPrime();
+
+    // Precompute (R * RM) % Q
+    RM = 1;
+    for (int i = 1; i <= M - 1; i++) {
+      RM = (R * RM) % Q;
+    }
+    patHash = hash(pat, M);
+  }
+
+  // Horner's linear-time method to evaluate degree-M polynomial
+  private long hash(String key, int M) {
+    long h = 0;
+    for (int j = 0; j < M; j++) {
+      h = (R * h + key.charAt(j)) % Q;
+    }
+    return h;
+  }
+
+  // Monte Carlo Search: return match if hash match
+  public int search(String txt) {
+    int N = txt.length();
+    int txtHash = hash(txt, M);
+    if (patHash == txtHash) {
+      return 0;
+    }
+    for (int i = M; i < N; i++) {
+      txtHash = (txtHash + Q - RM * txt.charAt(i - M) % Q) % Q;
+      txtHash = (txtHash * R + txt.charAt(i)) % Q;
+      // Las Vegas Monte Carlo: check for substring if hash match, continue search if false collision
+      if (patHash == txtHash) {
+       return i - M + 1;
+      }
+    }
+    return N;
+  }
+}
+```
+
+* Rabin-Karp analysis:
+  *  If *Q* is a sufficiently large random prime (about *M * N^2*), then the probability of a false collision is about *1 / N*
+  *  **Monte Carlo version**:
+    * Always runs in linear time
+    * Extremely likely to return correct answer (but not always!)
+  * **Las Vegas version**:
+    * Always returns correct answer
+    * Extremely likely to run in linear time (but worst case is *M * N*)
+
+* In summary for Rabin-Karp:
+  * **Advantages**:
+    * Extends to 2D patterns
+    * Extends to finding multiple patterns
+  * **Disadvantages**:
+    * Arithmetic ops slower than character compares
+    * Las Vegas version requires backup
+    * Poor worst-case guarantee
