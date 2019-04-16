@@ -267,7 +267,7 @@ public class FordFulkerson {
   * Theory: prove it for worst-case inputs
   * Conclusion: there is still much to be learned for maxflow/mincut
 
-## Week 2: Radix Sorts
+## Week 3: Radix Sorts
 
 > In this lecture we consider specialized sorting algorithms for strings and related objects. We begin with a subroutine to sort integers in a small range. We then consider two classic radix sorting algorithms—LSD and MSD radix sorts. Next, we consider an especially efficient variant, which is a hybrid of MSD radix sort and quicksort known as 3-way radix quicksort. We conclude with suffix sorting and related applications.
 
