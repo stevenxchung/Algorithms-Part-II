@@ -41,6 +41,8 @@ public class BoggleHelper {
         int j = s.charAt(inputStrLen) - REF;
         // Recursively set next node until one of the if gates trigger
         node.next[j] = append(node.next[j], s, inputStrLen + 1);
+
+        return node;
     }
 
     // Check if prefix exists in the word store
