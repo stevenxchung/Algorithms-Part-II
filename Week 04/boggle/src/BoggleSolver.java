@@ -1,184 +1,152 @@
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.SET;
-import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class BoggleSolver {
-    // Bring in helper functions from BoggleHelper (word store) class and create a new word store
-    private BoggleHelper newWordStore;
+    // Bring in helper functions from BoggleHelper (word store) class and create a word store
+    private BoggleHelper<Integer> wordStore;
+    private BoggleBoard board;
 
-    // Initialize the panels on board
-    private class Panel {
-        public int a, b;
+    // Switch to using arrays and hash maps
+    private ArrayList<String> wordList;
+    private HashMap<String, Integer> wordMap;
 
-        public Panel(int a, int b) {
-            this.a = a;
-            this.b = b;
+    // Helper function to check for word length and return corresponding scores
+    private int checkScore(String word) {
+        if (word.length() < 3) {
+            return 0;
+        } else if (word.length() < 5) {
+            return 1;
+        } else if (word.length() == 5) {
+            return 2;
+        } else if (word.length() == 6) {
+            return 3;
+        } else if (word.length() == 7) {
+            return 5;
         }
+        // Otherwise return 11
+        return 11;
     }
 
-    // Helper function to actually return the valid adjacent panel
-    private Iterable<Panel> adjacent(BoggleBoard board, int row, int col) {
-        // Initialize stack for adjacent panels
-        Stack<Panel> adjacentPanels = new Stack<>();
-
-        // Note: all checks below will run through unless false
-        // If row is less than the board rows
-        if (row < board.rows() - 1) {
-            adjacentPanels.push(new Panel(row + 1, col));
-            // Check if column is positive
-            if (col > 0) {
-                adjacentPanels.push(new Panel(row + 1, col - 1));
+    // Helper function to check all panels
+    private void checkPanels(int row, int col, int count, String prefix, boolean prefixChecked, boolean[][] traversed) {
+        // Has prefix been checked or does the key prefix already exist in the word store?
+        if (prefixChecked || wordStore.doesKeyPrefixExist(prefix)) {
+            // Now go through all possible adjacent panels
+            // Check left panel
+            if (col - 1 >= 0 && !traversed[row][col - 1]) {
+                depthFirstSearch(row, col - 1, count, prefix, traversed);
             }
-            // Also check if column is less than the board columns
-            if (col < board.cols() - 1) {
-                adjacentPanels.push(new Panel(row + 1, col + 1));
+            // Check right panel
+            if (col + 1 < board.cols() && !traversed[row][col + 1]) {
+                depthFirstSearch(row, col + 1, count, prefix, traversed);
             }
-        }
-
-        // If row is positive
-        if (row > 0) {
-            adjacentPanels.push(new Panel(row - 1, col));
-            // Check if column is positive
-            if (col > 0) {
-                adjacentPanels.push(new Panel(row - 1, col - 1));
+            // Rows is trickier, need to go through each column in row
+            // Check bottom panel
+            if (row - 1 >= 0) {
+                // Check left panel in row
+                if (col - 1 >= 0 && !traversed[row - 1][col - 1]) {
+                    depthFirstSearch(row - 1, col - 1, count, prefix, traversed);
+                }
+                // Check middle panel in row
+                if (!traversed[row - 1][col]) {
+                    depthFirstSearch(row - 1, col, count, prefix, traversed);
+                }
+                // Check right panel in row
+                if (col + 1 < board.cols() && !traversed[row - 1][col + 1]) {
+                    depthFirstSearch(row - 1, col + 1, count, prefix, traversed);
+                }
             }
-            // Also check if column is less than the board columns
-            if (col < board.cols() - 1) {
-                adjacentPanels.push(new Panel(row - 1, col + 1));
-            }
-        }
-
-        // Now check if column is less than the board columns
-        // Note: we do not have to check rows since we already did above
-        if (col < board.cols() - 1) {
-            adjacentPanels.push(new Panel(row, col + 1));
-        }
-
-        // Check if column is positive
-        if (col > 0) {
-            adjacentPanels.push(new Panel(row, col - 1));
-        }
-
-        return adjacentPanels;
-    }
-
-    // Helper function to construct base recursion for adjacent panels
-    private Iterable<Panel> adjacent(BoggleBoard board, Panel panel) {
-        return adjacent(board, panel.a, panel.b);
-    }
-
-    // Helper function to actually return words found from DFS
-    private SET<String> depthFirstSearch(BoggleBoard board, Panel panel, boolean[][] traversed, String prefix) {
-        // Initialize traversed to true
-        traversed[panel.a][panel.b] = true;
-        SET<String> wordSet = new SET<>();
-
-        // Check for 'Qu' case
-        if (prefix.charAt(prefix.length() - 1) == 'Q') {
-            prefix += 'U';
-        }
-
-        // Check if word is valid and add to set
-        if (prefix.length() > 2 && newWordStore.wordExists(prefix)) {
-            wordSet.add(prefix);
-        }
-
-        // Loop through panels and find prefixes
-        for (Panel panelX : adjacent(board, panel)) {
-            if (!traversed[panelX.a][panelX.b]) {
-                char character = board.getLetter(panelX.a, panelX.b);
-                String newPrefix = prefix + character;
-                if (newWordStore.prefixExists(newPrefix)) {
-                    wordSet = wordSet.union(depthFirstSearch(board, panel, traversed, newPrefix));
+            // Check top panel
+            if (row + 1 < board.rows()) {
+                // Check left panel in row
+                if (col - 1 >= 0 && !traversed[row + 1][col - 1]) {
+                    depthFirstSearch(row + 1, col - 1, count, prefix, traversed);
+                }
+                // Check middle panel in row
+                if (!traversed[row + 1][col]) {
+                    depthFirstSearch(row + 1, col, count, prefix, traversed);
+                }
+                // Check right panel in row
+                if (col + 1 < board.cols() && !traversed[row + 1][col + 1]) {
+                    depthFirstSearch(row + 1, col + 1, count, prefix, traversed);
                 }
             }
         }
-        // Set the next panel up
-        traversed[panel.a][panel.b] = false;
-
-        return wordSet;
     }
 
-    // Helper function to construct base recursive DFS
-    private SET<String> depthFirstSearchBase(BoggleBoard board, int a, int b) {
-        // Initialize panel
-        Panel panel = new Panel(a, b);
-        // Initialize array boolean for traversed panels
-        boolean[][] traversed = new boolean[board.rows()][board.cols()];
-        // Recursive return depthFirstSearch()
-        return depthFirstSearch(board, panel, traversed, "" + board.getLetter(a, b));
+    // Helper function to perform DFS
+    private void depthFirstSearch(int row, int col, int count, String prefix, boolean[][] traversed) {
+        // Find letter using methods from board class
+        char character = board.getLetter(row, col);
+        // Handle 'Qu' case
+        if (character == 'Q') {
+            prefix += "QU";
+            count += 2;
+        } else {
+            prefix += character;
+            count += 1;
+        }
+
+        // If we are here then this panel has been traversed
+        traversed[row][col] = true;
+
+        // Boolean to check prefix
+        boolean prefixChecked = false;
+        if (wordStore.doesKeyExist(prefix)) {
+            prefixChecked = true;
+            if (count >= 3 && !wordMap.containsKey(prefix)) {
+                // Add to map and list
+                wordMap.put(prefix, checkScore(prefix));
+                wordList.add(prefix);
+            }
+        }
+        // Now check all panels
+        checkPanels(row, col, count, prefix, prefixChecked, traversed);
+
+        // If we are here then reset this panel
+        traversed[row][col] = false;
     }
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
         // Initialize new word store
-        this.newWordStore = new BoggleHelper();
-        // For each word in the store add to the new word store
-        for (String word : dictionary) {
-            this.newWordStore.appendToStore(word);
+        wordStore = new BoggleHelper<>();
+        for (int i = 0; i < dictionary.length; i++) {
+            wordStore.appendToSST(dictionary[i], checkScore(dictionary[i]));
         }
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        // Initialize new set
-        SET<String> wordSet = new SET<>();
-
-        // Loop through each panel of the board and join valid adjacent panels which form words
+        // Initialize parameters, pull from global
+        this.board = board;
+        this.wordMap = new HashMap<>();
+        this.wordList = new ArrayList<>();
+        // Initialize boolean array for traversed panels
+        boolean[][] traversed = new boolean[board.rows()][board.cols()];
+        // Loop each panel and perform DFS
         for (int row = 0; row < board.rows(); row++) {
             for (int col = 0; col < board.cols(); col++) {
-                wordSet = wordSet.union(depthFirstSearchBase(board, row, col));
+                depthFirstSearch(row, col, 0, "", traversed);
             }
         }
-
-        return wordSet;
+        // Finally, return all valid words
+        return wordList;
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word) {
         // Check if word is in store
-        if (!newWordStore.wordExists(word)) {
-            return 0;
+        if (wordStore.doesKeyExist(word)) {
+            return wordStore.getValue(word);
         }
-        // Set the word length then set scores
-        int wordLength = word.length();
-//        HashMap<Integer, Integer> map = new HashMap<>();
-
-        // Add wordLengths and corresponding scores
-//        map.put(0, 0);
-//        map.put(1, 0);
-//        map.put(2, 0);
-//        map.put(3, 1);
-//        map.put(4, 1);
-//        map.put(5, 2);
-//        map.put(6, 3);
-//        map.put(7, 5);
-
-//        if (map.containsKey(wordLength)) {
-//            // Return score corresponding to key
-//            return map.get(wordLength);
-//        }
-
-        // Check for word length and return corresponding scores
-        if (wordLength < 3) {
-            return 0;
-        } else if (wordLength < 5) {
-            return 1;
-        } else if (wordLength == 5) {
-            return 2;
-        } else if (wordLength == 6) {
-            return 3;
-        } else if (wordLength == 7) {
-            return 5;
-        }
-
-        // Otherwise, length is greater than 7 so return 11
-        return 11;
+        // Otherwise, return 0
+        return 0;
     }
 
     // Given in assignment
