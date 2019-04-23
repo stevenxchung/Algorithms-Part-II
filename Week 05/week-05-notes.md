@@ -50,3 +50,98 @@
   * NFA -> can be several applicable transitions; need to select the right one!
 * How to simulate NFA?
   * Systematically consider **all** possible transition sequences
+
+### NFA Simulation
+* How to represent NFA?
+  * **State names** - integers from 0 to *M*
+  * **Match-transitions** - keep regular expression in array `re[]`
+  * **ε-transitions** - store in a **digraph** *G*
+* How to efficiently simulate an NFA?
+  * Maintain set of **all** possible states that NFA could be after reading in the first *i* text characters
+* How to perform reachability?
+  * Check whether input matches pattern
+  * Check when there are no more input characters:
+    * Accept if any state reachable is an accept state
+    * Reject otherwise
+
+* **Digraph reachability** - find all vertices reachable from a given source or **set** of vertices
+* **Solution** - run DFS from each source, without un-marking vertices
+* **Performance** - runs in time proportional to *E + V*
+
+* Below is an abstraction of how directed DFS could be implemented:
+```java
+public class DirectedDFS {  
+  // Find vertices reachable from s
+  DirectedDFS(Digraph G, int s) {}
+  
+  // Find vertices reachable from sources
+  DirectedDFS(Digraph G, Iterable<Integer> s) {}
+  
+  // Is v reachable from source(s)?
+  boolean marked(int v) {}
+}
+```
+
+* Therefore we can implement NFA simulation in Java as follows:
+```java
+public class NFA {
+  // Match transitions
+  private char[] re; 
+  // Epsilon transition digraph
+  private Digraph G; 
+  // Number of states
+  private int M; 
+
+  public NFA(String regexp) {
+    M = regexp.length();
+    re = regexp.toCharArray();
+    G = buildEpsilonTransitionDigraph();
+  }
+
+  public boolean recognizes(String txt) { 
+    // States reachable from start by epsilon transitions
+    Bag<Integer> pc = new Bag<Integer>();
+    DirectedDFS dfs = new DirectedDFS(G, 0);
+    for (int v = 0; v < G.V(); v++) {
+      if (dfs.marked(v)) {
+        pc.add(v);
+      } 
+    }
+
+    for (int i = 0; i < txt.length(); i++) {
+      // States reachable after scanning past txt.charAt(i)
+      Bag<Integer> match = new Bag<Integer>();
+      for (int v : pc) {
+        if (v == M) {
+          continue;
+        }
+        if ((re[v] == txt.charAt(i)) || re[v] == '.') {
+          match.add(v + 1);
+        }
+      }
+      // Follow epsilon transitions
+      dfs = new DirectedDFS(G, match);
+      pc = new Bag<Integer>();
+      for (int v = 0; v < G.V(); v++) {
+        if (dfs.marked(v)) {
+          pc.add(v);
+        }
+      }
+    }
+    // Accept if can end in state M
+    for (int v : pc) {
+      if (v == M) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public Digraph buildEpsilonTransitionDigraph() { 
+    /* stay tuned */ 
+  }
+}
+```
+
+* Analysis on NFA simulation shows that determining whether an *N*-character text is recognized by the NFA corresponding to an *M*-character pattern takes time proportional to *M * N* in the worst case
+
