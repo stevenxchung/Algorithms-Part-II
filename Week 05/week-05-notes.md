@@ -145,3 +145,51 @@ public class NFA {
 
 * Analysis on NFA simulation shows that determining whether an *N*-character text is recognized by the NFA corresponding to an *M*-character pattern takes time proportional to *M * N* in the worst case
 
+### NFA Construction
+* To build an NFA corresponding to an RE:
+  * Include a state for each symbol in the RE, plus an accept state
+  * Add match-transition edge from state corresponding to characters int he alphabet to next state
+  * Add *ε*-transition edge from parentheses to next state
+  * Add three *ε*-transition edges for each `*` operator or add two *ε*-transition edges for each `|` operator
+* To write a program to build the *ε*-transition digraph:
+  * Maintain a stack:
+    * `(` symbol: push `(` onto stack
+    * `|` symbol: push `|` onto stack
+    * `)` symbol: pop corresponding `(` and any intervening `|` add *ε*-transition edges for closure/or
+
+* NFA construction is then implemented as follows:
+```java
+private Digraph buildEpsilonTransitionDigraph() {
+  Digraph G = new Digraph(M + 1);
+  Stack<Integer> ops = new Stack<Integer>();
+  for (int i = 0; i < M; i++) {
+    int lp = i;
+    // Left parentheses and |
+    if (re[i] == '(' || re[i] == '|') {
+      ops.push(i);
+    }
+    // 2-way or
+    else if (re[i] == ')') {
+      int or = ops.pop();
+      if (re[or] == '|') {
+        lp = ops.pop();
+        G.addEdge(lp, or + 1);
+        G.addEdge(or, i);
+      }
+      else lp = or;
+    }
+    // Closure (needs 1-character lookahead)
+    if (i < M - 1 && re[i + 1] == '*') {
+      G.addEdge(lp, i + 1);
+      G.addEdge(i + 1, lp);
+    }
+    // Metasymbols
+    if (re[i] == '(' || re[i] == '*' || re[i] == ')')
+    G.addEdge(i, i + 1);
+  }
+
+  return G;
+} 
+```
+
+* Analysis on NFA construction concludes that building the NFA corresponding to an *M*-character RE takes time and space proportional to *M*
