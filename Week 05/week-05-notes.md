@@ -193,3 +193,26 @@ private Digraph buildEpsilonTransitionDigraph() {
 ```
 
 * Analysis on NFA construction concludes that building the NFA corresponding to an *M*-character RE takes time and space proportional to *M*
+
+### Regular Expression Applications
+* **Grep** - (Generalized Regular Expression Print) takes a RE as a command-line argument and prints the lines from standard input having some substring that is matched by the RE
+
+* An implementation of Grep in Java is shown below:
+```java
+public class GREP {
+  public static void main(String[] args) {
+    // Contains RE as a substring
+    String re = "(.*" + args[0] + ".*)";
+    NFA nfa = new NFA(re);
+    while (StdIn.hasNextLine()) {
+      String line = StdIn.readLine();
+      if (nfa.recognizes(line)) {
+        StdOut.println(line);
+      }
+    }
+  }
+}
+```
+
+* Worst-case run-time for grep (proportional to *M * N*) is that same as for brute-force substring search
+* See lecture slides for more applications of RE
