@@ -13,7 +13,7 @@ public class ExponentialSizeDFA {
   private Digraph buildDigraph() {}
 
   // Build exponential-size DFA
-  public ExponentialSizeDFA (String regexp) {}
+  public ExponentialSizeDFA(String regexp) {}
 
   // Tests
   public static void main(String[] args) {}
