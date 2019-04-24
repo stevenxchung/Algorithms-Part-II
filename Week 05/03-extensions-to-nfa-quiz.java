@@ -16,7 +16,7 @@ public class ExtendedNFA {
   private Digraph handleExtendedOperators() {}
 
   // Build extended DFA
-  public ExtendedNFA (String regexp) {}
+  public ExtendedNFA(String regexp) {}
 
   // Tests
   public static void main(String[] args) {}
