@@ -216,3 +216,246 @@ public class GREP {
 
 * Worst-case run-time for grep (proportional to *M * N*) is that same as for brute-force substring search
 * See lecture slides for more applications of RE
+
+## Week 5: Data Compression
+
+> We study and implement several classic data compression schemes, including run-length coding, Huffman compression, and LZW compression. We develop efficient implementations from first principles using a Java library for manipulating binary data that we developed for this purpose, based on priority queue and symbol table implementations from earlier lectures.
+
+### Introduction to Data Compression
+* Compression reduces the size of a file:
+  * To save **space** when storing it
+  * To save **time** when transmitting it
+  * Most files have lots of redundancy
+  * Refer to lecture slides for applications
+
+* **Message** - binary data *B* we want to compress
+* **Compress** - generates a "compressed" representation *C(B)*
+* **Expand** - reconstructs original bit-stream *B*
+* **Compression ratio** - bits in *C(B)* / bits in *B*
+
+### Run-length Encoding
+* **Simple type of redundancy in a bit-stream** - long runs of repeated bits
+* **Representation** - 4-bit counts to represent alternating runs of 0s and 1s
+* How many bits to store the counts?
+  * We will use 8 bits
+* What to do when run length exceeds max count?
+  * If longer than 255, intersperse runs of length 0
+
+* Run-length encoding can be implemented in Java as follows (see lecture slides for applications):
+```java
+public class RunLength {
+  // Maximum run-length count
+  private final static int R = 256;
+  // Number of bits per count
+  private final static int lgR = 8;
+  public static void compress() { 
+    /* see textbook */
+  }
+  public static void expand() {
+    boolean bit = false;
+    while (!BinaryStdIn.isEmpty()) {
+      // Read 8-bit count from standard input
+      int run = BinaryStdIn.readInt(lgR);
+      for (int i = 0; i < run; i++) {
+        // Write 1 bit to standard output
+        BinaryStdOut.write(bit);
+      }
+      bit = !bit;
+    }
+    // Pad 0s for byte alignment
+    BinaryStdOut.close();
+  }
+}
+```
+
+### Huffman Compression
+* There exists variable-length codes which use different number of bits to encode different chars (i.e., Morse code)
+* In practice, we use a medium gap to separate code-words
+* How do we avoid ambiguity?
+  * Ensure that no codeword is a **prefix** of another
+* How to represent the prefix-free code?
+  * A binary trie!
+    * Chars in leaves
+    * Code-word is path from root to leaf
+
+* Prefix-free codes utilize data compression and expansion as follows:
+  * **Compression**:
+    * Method 1: start at leaf; follow path up to the root; print bits in reverse
+    * Method 2: create ST of key-value pairs
+  * **Expansion**:
+    * Start at root
+    * Go left if bit is 0; go right if 1
+    * If leaf node, print char and return to root
+
+* We can look at how data compression and expansion is implemented for prefix-free codes by studying the Huffman trie node data type:
+```java
+private static class Node implements Comparable<Node> {
+  // Used only for leaf nodes
+  private final char ch; 
+  // Used only for compress
+  private final int freq; 
+  private final Node left, right;
+
+  // Initializing constructor
+  public Node(char ch, int freq, Node left, Node right) {
+    this.ch = ch;
+    this.freq = freq;
+    this.left = left;
+    this.right = right;
+  }
+
+  // Is Node a leaf?
+  public boolean isLeaf() { 
+    return left == null && right == null; 
+  }
+
+  // Compare Nodes by frequency (stay tuned)
+  public int compareTo(Node that) { 
+    return this.freq - that.freq; 
+  }
+}
+```
+
+* Expansion is implemented as follows:
+```java
+public void expand() {
+  // Read in encoding trie
+  Node root = readTrie();
+  // Read in number of chars
+  int N = BinaryStdIn.readInt();
+
+  for (int i = 0; i < N; i++) {
+    // Expand codeword for ith char
+    Node x = root;
+    while (!x.isLeaf()) {
+      if (!BinaryStdIn.readBoolean()) {
+        x = x.left;
+      } else {
+        x = x.right;
+      }
+    }
+    BinaryStdOut.write(x.ch, 8);
+  }
+  BinaryStdOut.close();
+}
+```
+
+* Running time is linear in input size *N*
+* How to write the trie?
+  * Write preorder traversal of trie; mark leaf and internal nodes with a bit
+* How to read in the trie?
+  * Reconstruct from preorder traversal of trie
+* How to find best prefix-free code?
+  * Try the **Shannon-Fano algorithm**:
+    * Partition symbols *S* into two subsets *S_0* and *S_1* of (roughly) equal freq
+    * Code-words for symbols in *S_0* start with 0; for symbols in *S_1* start with 1
+    * Recur in *S_0* and *S_1*
+* There are two problems with the Shannon-Fano algorithm however:
+  * How to divide up symbols?
+  * Not optimal!
+
+* The **Huffman algorithm** can be used to find the best prefix-free code:
+  * Count frequency `freq[i]` for each char `i` in input
+  * Start with one node corresponding to each char `i` (with weight `freq[i]`)
+  * Repeat until single trie formed:
+    * Select two tries with min weight `freq[i]` and `freq[j]`
+    * Merge into single trie with weight `freq[i] + freq[j]`
+  * See lecture slides for applications
+
+* To construct a Huffman encoding trie:
+```java
+private static Node buildTrie(int[] freq) {
+  // Initialize PQ with singleton tries
+  MinPQ<Node> pq = new MinPQ<Node>();
+  for (char i = 0; i < R; i++) {
+    if (freq[i] > 0) {
+      pq.insert(new Node(i, freq[i], null, null));
+    }
+  }
+
+  // Merge two smallest tries
+  while (pq.size() > 1) {
+    Node x = pq.delMin();
+    Node y = pq.delMin();
+    Node parent = new Node('\0', x.freq + y.freq, x, y);
+    pq.insert(parent);
+  }
+
+  return pq.delMin();
+}
+```
+
+* The Huffman algorithm produces an optimal prefix-free code
+* Using a binary heap we can get the run-time to be *N + R * log(R)* where *N* is the input size and *R* is the alphabet size 
+* Can we do better?
+
+### LZW Compression
+* Below are the different statistical methods we have:
+  * **Static model** - same model for all texts
+    * Fast
+    * Not optimal: different texts have different statistical properties
+    * Ex: ASCII, Morse code
+  * **Dynamic model** - generate model based on text
+    * Preliminary pass needed to generate model
+    * Must transmit the model
+    * Ex: Huffman code
+  * **Adaptive model** - progressively learn and update model as you read text
+    * More accurate modeling produces better compression
+    * Decoding must start from beginning
+    * Ex: LZW (Lempel-Ziv-Welch Compression)
+
+* **LZW Compression**:
+  * Create ST associating *W*-bit code-words with string keys
+  * Initialize ST with code-words for single-char keys
+  * Find longest string *s* in ST that is a prefix of un-scanned part of input
+  * Write the *W*-bit codeword associated with *s*
+  * Add *s* + *c* to ST, where *c* is next char in the input
+
+* How to represent LZW compression code table?
+  * A trie to support longest prefix match
+
+* Below is an implementation of LZW compression in Java:
+```java
+public static void compress() {
+  // Read in input as a string
+  String input = BinaryStdIn.readString();
+
+  TST<Integer> st = new TST<Integer>();
+  // Code-words for single-char, radix R keys
+  for (int i = 0; i < R; i++) {
+    st.put("" + (char) i, i);
+  }
+  int code = R + 1;
+
+  while (input.length() > 0) {
+    // Find longest prefix match s
+    String s = st.longestPrefixOf(input);
+    // Write W-bit codeword for s
+    BinaryStdOut.write(st.get(s), W);
+    int t = s.length();
+    if (t < input.length() && code < L) {
+      // Add new codeword
+      st.put(input.substring(0, t + 1), code++);
+    }
+    // Scan past s in input
+    input = input.substring(t);
+  }
+
+  // Write "stop" codeword and close input stream
+  BinaryStdOut.write(R, W);
+  BinaryStdOut.close();
+}
+```
+
+* **LZW Expansion**:
+  * Create ST associating string values with *W*-bit keys
+  * Initialize ST to contain single-char values
+  * Read a *W*-bit key
+  * Find associated string value in ST and write it out
+  * Update ST
+* How to represent a LZW expansion code table?
+  * An array of size *2^W*
+
+* In summary data compression can have lossless compression:
+  * Represent fixed-length symbols with variable-length codes (Huffman)
+  * Represent variable-length symbols with fixed-length codes (LZW)
