@@ -1,0 +1,122 @@
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class BurrowsWheeler {
+    // Initialize ASCII characters
+    private static final int ASCIICHARS = 256;
+
+    // Apply Burrows-Wheeler transform, reading from standard input and writing to standard output
+    public static void transform() {
+        // Initialize input string
+        String inputString = BinaryStdIn.readString();
+
+        // Initialize string parameters
+        int strLength = inputString.length();
+        char[] encodedOutputs = new char[strLength];
+        int unshiftedInt = 0;
+
+        // Initialize circular suffix array object
+        CircularSuffixArray obj = new CircularSuffixArray(inputString);
+
+        // Loop through length of string and add to encoded outputs
+        for (int i = 0; i < strLength; i++) {
+            // Start string count at one position under ith sorted suffix
+            int strCount = obj.index(i) - 1;
+            if (strCount == -1) {
+                // Reset at index i and add string length
+                strCount += strLength;
+                unshiftedInt = i;
+            }
+            // By default, add to encoded output array
+            encodedOutputs[i] = inputString.charAt(strCount);
+        }
+
+        // Write encoded binaries and header positions
+        BinaryStdOut.write(unshiftedInt);
+        BinaryStdOut.write(new String(encodedOutputs));
+
+        // Close read and writes
+        BinaryStdIn.close();
+        BinaryStdOut.close();
+    }
+
+    // Apply Burrows-Wheeler inverse transform, reading from standard input and writing to standard output
+    public static void inverseTransform() {
+        // Similar to encoding process but using array lists
+
+        // Initialize input string
+        String inputString = BinaryStdIn.readString();
+        // Initialize input integer
+        int unshiftedInt = BinaryStdIn.readInt();
+
+        // Initialize string parameters
+        int strLength = inputString.length();
+        int[] strLengthStore = new int[strLength];
+        char[] decodedOutputs = new char[strLength];
+        char[] header = inputString.toCharArray();
+
+        // A 16-bit code unit in the range D800(base 16) to DBFF(base 16)
+        // used in UTF-16 as the leading code unit of a surrogate pair
+        // Use this to check the header array
+        char max = Character.MAX_HIGH_SURROGATE;
+
+        // Use array lists to track characters
+        ArrayList<Integer>[] charStore = new ArrayList[ASCIICHARS];
+
+        // Loop through length of string and add characters to char store
+        for (int i = 0; i < strLength; i++) {
+            int ithChar = (int) inputString.charAt(i);
+            // Create a new store only if the ith character is null
+            if (charStore[ithChar] == null) {
+                charStore[ithChar] = new ArrayList<>();
+            }
+            // By default, add i to the character store at ith character (a bit tricky)
+            charStore[ithChar].add(i);
+        }
+
+        // Sorts the specified array (header) into ascending numerical order
+        Arrays.sort(header);
+
+        // Go through string again and set string store (equal to the length of the input string)
+        int position = -1;
+        for (int i = 0; i < strLength; i++) {
+            if (header[i] != max) {
+                // Set position at 0 and max surrogate at the ith header
+                position = 0;
+                max = header[i];
+            } else {
+                // Otherwise, the ith header is indeed the max surrogate
+                position++;
+            }
+            // Update string length store
+            strLengthStore[i] = charStore[max].get(position);
+        }
+
+        // Add to decoded outputs for the length of the input string
+        for (int i = 0; i < strLength; i++) {
+            decodedOutputs[i] = header[unshiftedInt];
+            unshiftedInt = strLengthStore[unshiftedInt];
+        }
+
+        // Write decoded binaries
+        BinaryStdOut.write(new String(decodedOutputs));
+
+        // Close read and writes
+        BinaryStdIn.close();
+        BinaryStdOut.close();
+    }
+
+    // If args[0] is '-', apply Burrows-Wheeler transform
+    // If args[0] is '+', apply Burrows-Wheeler inverse transform
+    public static void main(String[] args) {
+        // It can either be - or + so continue to the case that matches
+        if (args[0].equals("-")) {
+            transform();
+        } else if (args[0].equals("+")) {
+            inverseTransform();
+        }
+    }
+}
