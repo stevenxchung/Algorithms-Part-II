@@ -127,3 +127,24 @@
   * Good news: number of extreme points to consider is **finite**
   * Bad news : number of extreme points can be **exponential!**
 * **Greed property** - extreme point optimal if and only if no better adjacent extreme point
+
+### Simplex Algorithm
+* **Simplex algorithm**:
+  * Developed shortly after WWII in response to logistical problems, including Berlin airlift
+  * Ranked as one of top 10 scientific algorithms of 20th century
+* **Generic algorithm**:
+  * Start at some extreme point
+  * **Pivot** from one extreme point to an adjacent one
+  * Repeat until optimal
+* How do we implement either algorithm?
+  * Linear algebra
+* A **basis** is a subset of *m* of the *n* variables
+* **Basic feasible solution (BFS)**:
+  * Set *n – m* nonbasic variables to 0, solve for remaining *m* variables
+  * Solve *m* equations in *m* unknowns
+  * If unique and feasible ⇒ BFS
+  * BFS ⇔ extreme point
+* When to stop pivoting?
+  * When no objective function coefficient is positive
+* Why is resulting solution optimal?
+  * Any feasible solution satisfies current system of equations
