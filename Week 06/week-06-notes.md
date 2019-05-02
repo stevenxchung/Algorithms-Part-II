@@ -92,7 +92,7 @@
 
 > The quintessential problem-solving model is known as linear programming, and the simplex method for solving it is one of the most widely used algorithms. In this lecture, we given an overview of this central topic in operations research and describe its relationship to algorithms that we have considered.
 
-### Linear Programming
+### Introduction to Linear Programming
 * Linear programming is a problem-solving model for optimal allocation of scarce resources, among a number of competing activities that encompasses:
   * Shortest paths, maxflow, MST, matching, assignment, ...
   * *A * x = b*, 2-person zero-sum games, ...
@@ -303,3 +303,10 @@ public class Simplex {
 * Is there a universal problem-solving model?
   * **Does P = NP?** 
     * No universal problem-solving model exists unless **P = NP**
+
+## Week 6: Intractability
+
+> Is there a universal problem-solving model to which all problems that we would like to solve reduce and for which we know an efficient algorithm? You may be surprised to learn that we do no know the answer to this question. In this lecture we introduce the complexity classes P, NP, and NP-complete, pose the famous P = NP question, and consider implications in the context of algorithms that we have treated in this course.
+
+### Introduction to Intractability
+* 
