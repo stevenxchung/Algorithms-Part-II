@@ -148,3 +148,141 @@
   * When no objective function coefficient is positive
 * Why is resulting solution optimal?
   * Any feasible solution satisfies current system of equations
+
+### Simplex Implementations
+* **Simplex tableau** - encode standard form LP in single Java 2D array
+* Simplex algorithm transforms initial 2D array into solution
+  
+* The simplex tableau is constructed as follows:
+```java
+public class Simplex {
+  // Simplex tableaux
+  private double[][] a; 
+  // M constraints, N variables
+  private int m, n; 
+
+  public Simplex(double[][] A, double[] b, double[] c) {
+    m = b.length;
+    n = c.length;
+    a = new double[m + 1][m + n + 1];
+    // Put A[][] into tableau
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        a[i][j] = A[i][j];
+      }
+    }
+    // Put I[][] into tableau
+    for (int j = n; j < m + n; j++) {
+      a[j-n][j] = 1.0;
+    }
+    // Put c[] into tableau
+    for (int j = 0; j < n; j++) {
+      a[m][j] = c[j];
+    }
+    // Put b[] into tableau
+    for (int i = 0; i < m; i++) {
+      a[i][m+n] = b[i];
+    }
+  }
+
+  // Find entering column q using Bland's rule
+  // Index of first column whose objective function coefficient is positive
+  private int bland() {
+    for (int q = 0; q < m + n; q++) {
+      if (a[M][q] > 0) {
+        // Entering column q has positive objective function coefficient
+        return q;
+      }
+    }
+    // Optimal
+    return -1;
+  }
+
+  // Find leaving row p using min ratio rule
+  // (Bland's rule: if a tie, choose first such row)
+  private int minRatioRule(int q) {
+    // Leaving row
+    int p = -1;
+    for (int i = 0; i < m; i++) {
+      // Consider only positive entries
+      if (a[i][q] <= 0) {
+        continue;
+      } else if (p == -1) {
+        p = i;
+      } else if (a[i][m+n] / a[i][q] < a[p][m+n] / a[p][q]) {
+        // Row p has min ratio so far
+        p = i;
+      }
+    }
+    return p;
+  }
+
+  // Pivot on element row p, column q
+  public void pivot(int p, int q) {
+    for (int i = 0; i <= m; i++) {
+      for (int j = 0; j <= m+n; j++) {
+        if (i != p && j != q) {
+          // Scale all entries but row p and column q
+          a[i][j] -= a[p][j] * a[i][q] / a[p][q];
+        }
+      }
+    }
+    for (int i = 0; i <= m; i++) {
+      // Zero out column q
+      if (i != p) {
+        a[i][q] = 0.0;
+      }
+    }
+    for (int j = 0; j <= m+n; j++) {
+      // Scale row p
+      if (j != q) {
+        a[p][j] /= a[p][q];
+      }
+    }
+    a[p][q] = 1.0;
+  }
+
+  // Execute the simplex algorithm
+  public void solve() {
+    while (true) {
+      int q = bland();
+      // Entering column q (optimal if -1)
+      if (q == -1) {
+        break;
+      } 
+
+      int p = minRatioRule(q);
+      // Leaving row p (unbounded if -1)
+      if (p == -1) {
+        // ...
+      }
+
+      // Pivot on row p, column q
+      pivot(p, q);
+    }
+  }
+}
+```
+
+* Property of simplex algorithm: in typical practical applications, simplex algorithm terminates after at most *2 * (m + n)* pivots
+* **Pivoting rules**:
+  * Carefully balance the cost of finding an entering variable with the number of pivots needed
+  * No pivot rule is known that is guaranteed to be polynomial
+  * Most pivot rules are known to be exponential (or worse) in worst-case
+* **Degeneracy** - new basis, same extreme point
+* **Cycling**:
+  * Get stuck by cycling through different bases that all correspond to same extreme point
+  * Doesn't occur in the wild
+  * Bland's rule guarantees finite # of pivots
+
+* To improve the bare-bones implementation:
+  * Avoid stalling (requires artful engineering)
+  * Maintain sparsity (requires fancy data structures)
+  * Numerical stability (requires advanced math)
+  * Detect infeasibility (run "phase I" simplex algorithm)
+  * Detect unboundedness (no leaving row)
+
+* **Best practice** -don't implement it yourself!
+* **Basic implementations** - available in many programming environments
+* **Industrial-strength solvers** - routinely solve LPs with **millions** of variables
+* **Modeling languages** - simplify task of modeling problem as LP
