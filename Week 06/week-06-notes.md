@@ -92,3 +92,11 @@
 
 > The quintessential problem-solving model is known as linear programming, and the simplex method for solving it is one of the most widely used algorithms. In this lecture, we given an overview of this central topic in operations research and describe its relationship to algorithms that we have considered.
 
+### Linear Programming
+* Linear programming is a problem-solving model for optimal allocation of scarce resources, among a number of competing activities that encompasses:
+  * Shortest paths, maxflow, MST, matching, assignment, ...
+  * *A * x = b*, 2-person zero-sum games, ...
+* Significance of linear programming (see lecture slides for applications):
+  * Fast commercial solvers available
+  * Widely applicable problem-solving model
+  * Key subroutine for integer programming solvers
