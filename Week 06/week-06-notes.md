@@ -100,3 +100,30 @@
   * Fast commercial solvers available
   * Widely applicable problem-solving model
   * Key subroutine for integer programming solvers
+
+### Brewer's Problem
+* **Scenario** - small brewery produces ale and beer:
+  * Production limited by scare resources: corn, hops, barley malt
+  * Recipes for ale and beer require different proportions of resources
+* **Goal** - choose product mix to maximize profits
+* **Linear programming formulation**:
+  * Let *A* be the number of barrels of ale
+  * Let *B* be the number of barrels of beer
+* Inequalities define **halfplanes**; feasible region is a **convex polygon** (see lecture slides)
+* Optimal solution occurs at an **extreme point**
+* Standard form linear program:
+  * **Goal** - Maximize linear objective function of *n* non-negative variables, subject to *m* linear equations:
+    * Input: real numbers *a_ij, c_j, b_i*
+    * Output: real numbers *x_j*
+* Converting the brewer's problems to the standard form:
+  * Add variable *Z* and equation corresponding to objective function
+  * Add **slack** variable to convert each inequality to an equality
+  * Now a 6-dimensional problem
+* Geometry:
+  * Inequalities define **halfspaces**; feasible region is a **convex polyhedron**
+  * A set is **convex** if for any two points *a* and *b* in the set, so is *(1/2) * (a + b)*
+  * An extreme point of a set is a point in the set that can't be written as *(1/2) * (a + b)*, where *a* and *b* are two distinct points in the set
+* **Extreme point property** - if there exists an optimal solution to (P), then there exists one that is an extreme point:
+  * Good news: number of extreme points to consider is **finite**
+  * Bad news : number of extreme points can be **exponential!**
+* **Greed property** - extreme point optimal if and only if no better adjacent extreme point
