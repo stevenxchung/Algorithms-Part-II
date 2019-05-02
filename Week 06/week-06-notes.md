@@ -286,3 +286,20 @@ public class Simplex {
 * **Basic implementations** - available in many programming environments
 * **Industrial-strength solvers** - routinely solve LPs with **millions** of variables
 * **Modeling languages** - simplify task of modeling problem as LP
+
+### Linear Programming Reductions
+* **Linear “programming” (1950s term) = reduction to LP (modern term)**:
+  * Process of formulating an LP model for a problem
+  * Solution to LP for a specific problem gives solution to the problem
+* Identify **variables**
+* Define **constraints** (inequalities and equations)
+* Define **objective function**
+* Convert to standard form (software usually performs this step automatically)
+* There are many examples of models in the lecture slides
+
+* Got an optimization problem?
+  * Use a specialized algorithm to solve it
+  * Use linear programming
+* Is there a universal problem-solving model?
+  * **Does P = NP?** 
+    * No universal problem-solving model exists unless **P = NP**
