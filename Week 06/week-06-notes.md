@@ -404,3 +404,27 @@ public class Simplex {
   * Polynomial number of calls to *Y*
 * **Consequence** - if SAT poly-time reduces to *Y*, then we conclude that *Y* is (probably) intractable
 * SAT poly-time reduces to ILP (see full reduction tree in lecture slide), if SAT is intractable, a whole set of problems are intractable
+
+### NP-completeness
+* An NP problem is **NP-complete** if every problem in NP poly-time reduce to it
+* SAT is NP complete (Cook 1971, Levin 1973)
+* **Extremely brief proof sketch**:
+  * Convert non-deterministic TM notation to SAT notation
+  * If you can solve SAT, you can solve any problem in NP
+* **Corollary** - poly-time algorithm for SAT if an only if **P = NP**
+* **Implications** (see lecture slides for diagram):
+  * Poly-time algorithm for SAT iff P = NP
+  * No poly-time algorithm for some NP problem ⇒ none for SAT
+* Overwhelming consensus: **P != NP**
+
+* In summary:
+  * **P** - class of search problems solvable in poly-time
+  * **NP** - class of all search problems, some of which seem wickedly hard
+  * **NP-complete** - hardest problems in NP (see lecture slides for examples)
+  * **Intractable** - problem with no poly-time algorithm
+
+* Use theory as a guide:
+  * A poly-time algorithm for an NP-complete problem would be a stunning breakthrough (a proof that P = NP)
+  * You will confront NP-complete problems in your career
+  * Safe to assume that P ≠ NP and that such problems are intractable
+  * Identify these situations and proceed accordingly
