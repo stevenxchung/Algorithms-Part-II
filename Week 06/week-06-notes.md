@@ -309,4 +309,55 @@ public class Simplex {
 > Is there a universal problem-solving model to which all problems that we would like to solve reduce and for which we know an efficient algorithm? You may be surprised to learn that we do no know the answer to this question. In this lecture we introduce the complexity classes P, NP, and NP-complete, pose the famous P = NP question, and consider implications in the context of algorithms that we have treated in this course.
 
 ### Introduction to Intractability
-* 
+* What is a general-purpose computer?
+* Are there limits on the power of digital computers?
+* Are there limits on the power of machines we can build?
+* Consider the tape model of computation:
+  * **Tape**:
+    * Stores input
+    * One arbitrarily long strip, divided into cells
+    * Finite alphabet of symbols
+  * **Tape head**:
+    * Points to one cell of tape
+    * Reads a symbol from active cell
+    * Moves one cell at a time
+* Now consider Turing machines:
+  * **Tape**:
+    * Stores input, **output**, and **intermediate results**
+    * One arbitrarily long strip, divided into cells
+    * Finite alphabet of symbols
+  * **Tape head**:
+    * Points to one cell of tape
+    * Reads a symbol from active cell
+    * **Writes** a symbol to active cell
+    * Moves one cell at a time
+* Is there a more powerful model of computation?
+  * No!
+* Church-Turing thesis (1936):
+> Turing machines can compute any function that can be computed by a
+physically harnessable process of the natural world.
+
+* **Implications**:
+  * No need to seek more powerful machines or languages
+  * Enables rigorous study of computation (in this universe)
+* Turing machine is a **simple** and **universal** model of computation
+
+* Which algorithms are useful in practice?
+  * Measure running time as a function of input size *N*
+  * Useful in practice ("efficient") = polynomial time for all inputs
+* **Theory** - definition is broad and robust
+* **Practice** - poly-time algorithms scale to huge problems
+* Exponential growth dwarfs technological change:
+  * Suppose you have a giant parallel computing device…
+  * With as many processors as electrons in the universe…
+  * And each processor has power of today's supercomputers…
+  * And each processor works for the life of the universe…
+  * Result: will not help solve 1,000 city TSP problem via brute force (see lecture slide)
+
+* Which problems can we solve in practice?
+  * Those with poly-time algorithms
+* Which problems have poly-time algorithms?
+  * Not so easy to know (see lecture)
+
+* A problem is **intractable** if it can't be solved in polynomial time
+
