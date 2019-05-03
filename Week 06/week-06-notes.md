@@ -334,8 +334,7 @@ public class Simplex {
 * Is there a more powerful model of computation?
   * No!
 * Church-Turing thesis (1936):
-> Turing machines can compute any function that can be computed by a
-physically harnessable process of the natural world.
+  > Turing machines can compute any function that can be computed by a physically harnessable process of the natural world.
 
 * **Implications**:
   * No need to seek more powerful machines or languages
@@ -361,3 +360,15 @@ physically harnessable process of the natural world.
 
 * A problem is **intractable** if it can't be solved in polynomial time
 
+### Search Problems
+* Four fundamental search problems:
+  * **LSOLVE** - given a system of **linear equations**, find a solution
+  * **LP** - given a system of **linear inequalities**, find a solution
+  * **ILP** - given a system of **linear inequalities**, find a 0-1 solution
+  * **SAT** - given a system of **boolean equations**, find a binary solution
+* Which of these problems have **poly-time** algorithms?
+  * **LSOLVE** - yes, Gaussian elimination solves N-by-N system in N 3 time
+  * **LP** - yes, Ellipsoid algorithm is poly-time
+  * **ILP**, **SAT** - no poly-time algorithm known or believed to exist!
+* **Search problem** - given an instance *I* of a problem, **find** a solution *S*
+* **Requirement** - must be able to efficiently **check** that *S* is a solution
