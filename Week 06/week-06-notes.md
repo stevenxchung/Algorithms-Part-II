@@ -372,3 +372,16 @@ public class Simplex {
   * **ILP**, **SAT** - no poly-time algorithm known or believed to exist!
 * **Search problem** - given an instance *I* of a problem, **find** a solution *S*
 * **Requirement** - must be able to efficiently **check** that *S* is a solution
+
+### P vs NP
+* NP is the class of all search problems (see lecture slides for full list)
+* **Significance** - what scientists and engineers **aspire to compute** feasibly
+* P is the class of all search problems solvable in poly-time
+* **Significance** - what scientists and engineers do compute feasibly
+* Non-deterministic machine can **guess** the desired solution (see lecture slides for examples)
+* Extended Church-Turing thesis:
+  > P = search problems solvable in poly-time **in the natural world**.
+* **Implication** - To make future computers more efficient, suffices to focus on improving implementation of existing designs
+* So does **P = NP**?
+  * **If P = NP** - poly-time algorithms for SAT, ILP, TSP, FACTOR, etc.
+  * **If P != NP** - would learn something fundamental about our universe
