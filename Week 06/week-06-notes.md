@@ -385,3 +385,22 @@ public class Simplex {
 * So does **P = NP**?
   * **If P = NP** - poly-time algorithms for SAT, ILP, TSP, FACTOR, etc.
   * **If P != NP** - would learn something fundamental about our universe
+
+### Classifying Problems
+* **SAT** -given a system of boolean equations, find a solution
+* **Key applications**:
+  * Automatic verification systems for software
+  * Electronic design automation (EDA) for hardware
+  * Mean field diluted spin glass model in physics
+* How to solve an instance of SAT with *n* variables?
+  * Exhaustive search: try all 2^*n* truth assignments
+* Can we do anything substantially more clever?
+  * No poly-time algorithm for SAT
+
+* Which search problems are in P?
+  * No easy answers (we don't even known whether P = NP)
+* Problem X **poly-time reduces** to problem *Y* if *X* can be solved with:
+  * Polynomial number of standard computational steps
+  * Polynomial number of calls to *Y*
+* **Consequence** - if SAT poly-time reduces to *Y*, then we conclude that *Y* is (probably) intractable
+* SAT poly-time reduces to ILP (see full reduction tree in lecture slide), if SAT is intractable, a whole set of problems are intractable
