@@ -7,4 +7,4 @@ Consider the following two problems:
 
 Show that *3Sum* linear time reduces to *4Sum*
 
-A: If the 3 sum problem, *a_i* + *a_j* + *a_k* = 0 runs in linear time, then the 4 sum problem also runs in linear time *b_i* + *b_j* + *b_k* + *b_l*= 0 provided that there exists distinct integers for 4 sum such that *b_i* + *b_j* + *b_k* + *b_l* = *a_i* + *a_j* + *a_k*
+A: If the 3 sum problem, *a_i* + *a_j* + *a_k* = 0 runs in linear time, then the 4 sum problem also runs in linear time *b_i* + *b_j* + *b_k* + *b_l*= 0 provided that there exists distinct integers for 4 sum such that *b_i* + *b_j* + *b_k* + *b_l* = *a_i* + *a_j* + *a_k*.
