@@ -428,3 +428,76 @@ public class Simplex {
   * You will confront NP-complete problems in your career
   * Safe to assume that P ≠ NP and that such problems are intractable
   * Identify these situations and proceed accordingly
+
+### Coping with Intractability
+* **Modern cryptography**:
+  * Send your credit card to Amazon
+  * Digitally sign an e-document
+  * Enables freedom of privacy, speech, press, political association
+* **RSA crypto-system**:
+  * To use: multiply two *n*-bit integers (poly-time)
+  * To break: factor a 2 *n*-bit integer (unlikely poly-time)
+
+* **FACTOR** - given an *n*-bit integer *x*, find a non-trivial factor
+* What is complexity of FACTOR?
+  * In NP, but not known (or believed) to be in P or NP-complete
+* What if P = NP?
+  * Poly-time algorithm for factoring; modern e-conomy collapses
+* Can factor an *n*-bit integer in *n^3* steps on a "quantum computer" (Shor 1994)
+* Do we still believe the extended Church-Turing thesis?
+
+* **Relax one of desired features**:
+  * Solve arbitrary instances of the problem
+  * Solve the problem to optimality
+  * Solve the problem in poly-time
+
+* **Special cases may be tractable**:
+  * Ex. linear time algorithm for 2-SAT (at most two variables per equation)
+  * Ex. linear time algorithm for Horn-SAT (at most one un-negated variable per equation)
+
+* **Develop a heuristic, and hope it produces a good solution**:
+  * No guarantees on quality of solution
+  * Ex. TSP assignment heuristics
+  * Ex. Metropolis algorithm, simulating annealing, genetic algorithms
+
+* **Complexity theory deals with worst case behavior**:
+  * Instance(s) you want to solve may be "easy"
+  * Chaff solves real-world SAT instances with ~ 10K variable
+
+* The goal of a Hamilton path is to find a simple path that visits every vertex exactly once
+* Euler path is easy but Hamilton path is NP-complete
+
+* Below is an implementation of Hamilton path in Java:
+```java
+public class HamiltonPath {
+  // Vertices on current path
+  private boolean[] marked; 
+  // Number of Hamiltonian paths
+  private int count = 0; 
+
+  public HamiltonPath(Graph G) {
+    marked = new boolean[G.V()];
+    for (int v = 0; v < G.V(); v++) {
+      dfs(G, v, 1);
+    }
+  }
+
+  // Where depth is length of current path (depth of recursion)
+  private void dfs(Graph G, int v, int depth) {
+    marked[v] = true;
+    // Found one
+    if (depth == G.V()) {
+      count++;
+    }
+
+    for (int w : G.adj(v)) {
+      // Backtrack if w is already part of path
+      if (!marked[w]) {
+        dfs(G, w, depth + 1);
+      } 
+    }
+    // Clean up
+    marked[v] = false;
+  }
+}
+```
