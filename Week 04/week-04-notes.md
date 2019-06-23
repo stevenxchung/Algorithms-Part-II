@@ -3,10 +3,13 @@
 > In this lecture we consider specialized algorithms for symbol tables with string keys. Our goal is a data structure that is as fast as hashing and even more flexible than binary search trees. We begin with multiway tries; next we consider ternary search tries. Finally, we consider character-based operations, including prefix match and longest prefix, and related applications.
 
 ### R-way Tries
-* Can we do better than previous symbol table implementations (see lecture for full table on red-black BST and hash tables)?
-  * Yes, we can do better than previous symbol table implementations by avoiding examining the entire key, as with string sorting
 
-* An abstraction of the string symbol table API is as follows:
+- Can we do better than previous symbol table implementations (see lecture for full table on red-black BST and hash tables)?
+
+  - Yes, we can do better than previous symbol table implementations by avoiding examining the entire key, as with string sorting
+
+- An abstraction of the string symbol table API is as follows:
+
 ```java
 public class StringST<Value> {
   // Create an empty symbol table
@@ -23,22 +26,26 @@ public class StringST<Value> {
 }
 ```
 
-* **Goal** - we want a new symbol table which is faster than hashing and more flexible than BSTs
+- **Goal** - we want a new symbol table which is faster than hashing and more flexible than BSTs
 
-* The idea behind tries is to:
-  * Store characters in nodes (not keys)
-  * Each node has *R* children, one for each possible character
-  * For now, we do not draw null links
+- The idea behind tries is to:
 
-* Search in a trie occurs by following links corresponding to each character in key:
-  * **Search hit**: node where search ends has a non-null value
-  * **Search miss**: reach null link or node where search ends has null value
+  - Store characters in nodes (not keys)
+  - Each node has _R_ children, one for each possible character
+  - For now, we do not draw null links
 
-* Insertion into a trie:
-  * Encounter a null link: create new node
-  * Encounter the last character of the key: set value in that node.
+- Search in a trie occurs by following links corresponding to each character in key:
 
-* The implementation for a node in a trie:
+  - **Search hit**: node where search ends has a non-null value
+  - **Search miss**: reach null link or node where search ends has null value
+
+- Insertion into a trie:
+
+  - Encounter a null link: create new node
+  - Encounter the last character of the key: set value in that node.
+
+- The implementation for a node in a trie:
+
 ```java
 private static class Node {
   // Use Object instead of Value since no generic array creation in Java
@@ -47,7 +54,8 @@ private static class Node {
 }
 ```
 
-* R-way trie implementation in Java:
+- R-way trie implementation in Java:
+
 ```java
 public class TrieST<Value> {
   // Extended ASCII
@@ -103,29 +111,32 @@ public class TrieST<Value> {
 }
 ```
 
-* Trie performance could be summarized as follows:
-  * **Search hit** - Need to examine all *L* characters for equality
-  * **Search miss** - Could have mismatch on first character or - more typically - examine only a few characters (sub-linear)
-  * **Space** - *R* null links at each leaf (but sub-linear space possible if many short strings share common prefixes)
-* Bottom line is that tries offer fast search hit and even faster search miss, however they waste space
+- Trie performance could be summarized as follows:
+  - **Search hit** - Need to examine all _L_ characters for equality
+  - **Search miss** - Could have mismatch on first character or - more typically - examine only a few characters (sub-linear)
+  - **Space** - _R_ null links at each leaf (but sub-linear space possible if many short strings share common prefixes)
+- Bottom line is that tries offer fast search hit and even faster search miss, however they waste space
 
-* To delete in an R-way trie:
-  * Find the node corresponding to key and set value to null
-  * If node has null value and all null links, remove that node (and recur)
+- To delete in an R-way trie:
 
-* A R-way trie is the method of choice for small *R* but takes up too much memory for large *R*
+  - Find the node corresponding to key and set value to null
+  - If node has null value and all null links, remove that node (and recur)
+
+- A R-way trie is the method of choice for small _R_ but takes up too much memory for large _R_
 
 ### Ternary Search Tree
-* Store characters and values in nodes (not keys)
-* Each node has three children: smaller (left), equal (middle), and larger (right)
 
-* Search in a TST (Ternary Search Tree) is done by also following links corresponding to each character in the key:
-  * If less, take left link; if greater, take right link
-  * If equal, take the middle link and move to the next key character
-* **Search hit** - Node where search ends has a non-null value
-* **Search miss** - Reach a null link or node where search ends has null value
+- Store characters and values in nodes (not keys)
+- Each node has three children: smaller (left), equal (middle), and larger (right)
 
-* The Java representation of a Node for TSTs:
+- Search in a TST (Ternary Search Tree) is done by also following links corresponding to each character in the key:
+  - If less, take left link; if greater, take right link
+  - If equal, take the middle link and move to the next key character
+- **Search hit** - Node where search ends has a non-null value
+- **Search miss** - Reach a null link or node where search ends has null value
+
+- The Java representation of a Node for TSTs:
+
 ```java
 private class Node {
   private Value val;
@@ -134,7 +145,8 @@ private class Node {
 }
 ```
 
-* The Java representation of a TST is then:
+- The Java representation of a TST is then:
+
 ```java
 public class TST<Value> {
   private Node root;
@@ -197,36 +209,39 @@ public class TST<Value> {
 }
 ```
 
-* We can build balanced TSTs via rotations to achieve *L + log(N)* worst-case guarantees
-* In summary, TST is as fast as hashing (for string keys) and is space efficient
+- We can build balanced TSTs via rotations to achieve _L + log(N)_ worst-case guarantees
+- In summary, TST is as fast as hashing (for string keys) and is space efficient
 
-* We can also have a TST with *R^2* branching at root (hybrid of R-way trie and TST):
-  * Do *R^2*-way branching at root
-  * Each of *R^2* root nodes points to a TST
-* A hybrid R-way trie with a TST is faster than hashing
+- We can also have a TST with _R^2_ branching at root (hybrid of R-way trie and TST):
+  - Do _R^2_-way branching at root
+  - Each of _R^2_ root nodes points to a TST
+- A hybrid R-way trie with a TST is faster than hashing
 
-* In general for TST versus hashing:
-  * **Hashing**:
-    * Need to examine entire key
-    * Search hits and misses cost about the same
-    * Performance relies on hash function
-    * Does not support ordered symbol table operations
-  * **TSTs**:
-    * Works only for strings (or digital keys)
-    * Only examines just enough key characters
-    * Search miss may involve only a few characters
-    * Supports ordered symbol table operations (plus others!)
-  **Bottom line**:
-    * TSTs are faster than hashing (especially for search misses)
-    * More flexible than red-black BSTs
+- In general for TST versus hashing:
+  - **Hashing**:
+    - Need to examine entire key
+    - Search hits and misses cost about the same
+    - Performance relies on hash function
+    - Does not support ordered symbol table operations
+  - **TSTs**:
+    - Works only for strings (or digital keys)
+    - Only examines just enough key characters
+    - Search miss may involve only a few characters
+    - Supports ordered symbol table operations (plus others!)
+      **Bottom line**:
+    - TSTs are faster than hashing (especially for search misses)
+    - More flexible than red-black BSTs
 
 ### Character-based Operations
-* Character-based operations: the string symbol table API supports several useful character-based operations:
-  * Prefix match
-  * Wildcard match
-  * Longest prefix
 
-* The string symbol table API could then be abstracted as follows:
+- Character-based operations: the string symbol table API supports several useful character-based operations:
+
+  - Prefix match
+  - Wildcard match
+  - Longest prefix
+
+- The string symbol table API could then be abstracted as follows:
+
 ```java
 public class StringST<Value> {
   // Create a symbol table with string keys
@@ -255,13 +270,15 @@ public class StringST<Value> {
 }
 ```
 
-* We can also add the other ordered ST methods e.g., `floor()` and `rank()`
+- We can also add the other ordered ST methods e.g., `floor()` and `rank()`
 
-* For character-based operations, ordered iteration is done as follows:
-  * Do in-order traversal of trie; add keys encountered to a queue
-  * Maintain sequence of characters on path from root to node
+- For character-based operations, ordered iteration is done as follows:
 
-* We can implement this in Java as follows:
+  - Do in-order traversal of trie; add keys encountered to a queue
+  - Maintain sequence of characters on path from root to node
+
+- We can implement this in Java as follows:
+
 ```java
 public Iterable<String> keys() {
   Queue<String> queue = new Queue<String>();
@@ -284,7 +301,8 @@ private void collect(Node x, String prefix, Queue<String> q) {
 }
 ```
 
-* Prefix matches is the idea of finding all keys in a symbol table starting with a given prefix:
+- Prefix matches is the idea of finding all keys in a symbol table starting with a given prefix:
+
 ```java
 public Iterable<String> keysWithPrefix(String prefix) {
   Queue<String> queue = new Queue<String>();
@@ -296,11 +314,13 @@ public Iterable<String> keysWithPrefix(String prefix) {
 }
 ```
 
-* Longest prefix is the idea of finding the longest key in a symbol table that is a prefix of a query string:
-  * Search for query string
-  * Keep track of longest key encountered
+- Longest prefix is the idea of finding the longest key in a symbol table that is a prefix of a query string:
 
-* We can implement the longest prefix as follows:
+  - Search for query string
+  - Keep track of longest key encountered
+
+- We can implement the longest prefix as follows:
+
 ```java
 public String longestPrefixOf(String query) {
   int length = search(root, query, 0, 0);
@@ -324,73 +344,78 @@ private int search(Node x, String query, int d, int length) {
 }
 ```
 
-* A **Patricia** (Practical Algorithm to Retrieve Information Coded in Alphanumeric) **trie**:
-  * Remove one-way branching
-  * Each node represents a sequence of characters
-  * Implementation: one step beyond this course
-* Applications:
-  * Database search
-  * P2P network search
-  * IP routing tables: find longest prefix match
-  * Compressed quad-tree for N-body simulation
-  * Efficiently storing and querying XML documents
-* A Patricia trie is also known as: crit-bit tree or radix tree
+- A **Patricia** (Practical Algorithm to Retrieve Information Coded in Alphanumeric) **trie**:
+  - Remove one-way branching
+  - Each node represents a sequence of characters
+  - Implementation: one step beyond this course
+- Applications:
+  - Database search
+  - P2P network search
+  - IP routing tables: find longest prefix match
+  - Compressed quad-tree for N-body simulation
+  - Efficiently storing and querying XML documents
+- A Patricia trie is also known as: crit-bit tree or radix tree
 
-* **Suffix tree**:
-  * Patricia trie of suffixes of a string
-  * Linear-time construction
-* Applications:
-  * Linear-time: longest repeated substring, longest common substring, longest palindromic substring, substring search, tandem repeats, etc.
-  * Computational biology databases (BLAST, FASTA)
+- **Suffix tree**:
+  - Patricia trie of suffixes of a string
+  - Linear-time construction
+- Applications:
 
-* String symbol table summary:
-  * **Red-black BST**:
-    * Performance guarantee: *log(N)* key compares
-    * Supports ordered symbol table API
-  * **Hash tables**:
-    * Performance guarantee: constant number of probes
-    * Requires good hash function for key type
-  * **Tries**:
-    * Performance guarantee: *log(N)* **characters** accessed
-    * Supports character-based operations
-* **Bottom line** - you can get at anything by examining 50-100 bits
+  - Linear-time: longest repeated substring, longest common substring, longest palindromic substring, substring search, tandem repeats, etc.
+  - Computational biology databases (BLAST, FASTA)
+
+- String symbol table summary:
+  - **Red-black BST**:
+    - Performance guarantee: _log(N)_ key compares
+    - Supports ordered symbol table API
+  - **Hash tables**:
+    - Performance guarantee: constant number of probes
+    - Requires good hash function for key type
+  - **Tries**:
+    - Performance guarantee: _log(N)_ **characters** accessed
+    - Supports character-based operations
+- **Bottom line** - you can get at anything by examining 50-100 bits
 
 ## Week 4: Substring Search
 
 > In this lecture we consider algorithms for searching for a substring in a piece of text. We begin with a brute-force algorithm, whose running time is quadratic in the worst case. Next, we consider the ingenious Knuth–Morris–Pratt algorithm whose running time is guaranteed to be linear in the worst case. Then, we introduce the Boyer–Moore algorithm, whose running time is sublinear on typical inputs. Finally, we consider the Rabin–Karp fingerprint algorithm, which uses hashing in a clever way to solve the substring search and related problems.
 
 ### Introduction to Substring Search
-* **Goal** - find a pattern of length *M* in a text of length *N* (typically *N* >> *M*)
-* Applications of substring search:
-  * **Computer forensics** - search memory or disks for signatures
-  * **Identify patterns indicative of spam**
-  * **Electronic surveillance**
-  * **Screen scraping** - extract relevant data from web page
+
+- **Goal** - find a pattern of length _M_ in a text of length _N_ (typically _N_ >> _M_)
+- Applications of substring search:
+  - **Computer forensics** - search memory or disks for signatures
+  - **Identify patterns indicative of spam**
+  - **Electronic surveillance**
+  - **Screen scraping** - extract relevant data from web page
 
 ### Brute-force Substring Search
-* Check for pattern starting at each text position
-* Brute-force algorithm can be slow if text and pattern are repetitive
-* Worst-case run-time: *M * N* character compares
-* Brute-force is not always good enough:
-  * **Theoretical challenge** - linear-time guarantee
-  * **Practical challenge** - avoid backup in text stream
+
+- Check for pattern starting at each text position
+- Brute-force algorithm can be slow if text and pattern are repetitive
+- Worst-case run-time: _M _ N\* character compares
+- Brute-force is not always good enough:
+  - **Theoretical challenge** - linear-time guarantee
+  - **Practical challenge** - avoid backup in text stream
 
 ### Knuth-Morris-Pratt
-* A clever method to always avoid backup, here is how it works:
-  * Suppose we are searching in text for pattern `BAAAAAAAAA`
-  * Suppose we match 5 chars in pattern, with mismatch on 6th char
-  * We know previous 6 chars in text are BAAAAB
-  * Don't need to back up text pointer!
-* DFA (Deterministic Finite State Automaton) is an abstract string-searching machine:
-  * Finite number of states (including start and halt)
-  * Exactly one transition for each char in alphabet
-  * Accept if sequence of transitions leads to halt state
-* A key difference between Knuth-Morris-Pratt substring search and brute-force is that:
-  * Need to precompute `dfa[][]` from pattern
-  * Text pointer `i` never decrements
-* DFA on text is at most *N* character accesses
 
-* We can also add an input stream for DFA:
+- A clever method to always avoid backup, here is how it works:
+  - Suppose we are searching in text for pattern `BAAAAAAAAA`
+  - Suppose we match 5 chars in pattern, with mismatch on 6th char
+  - We know previous 6 chars in text are BAAAAB
+  - Don't need to back up text pointer!
+- DFA (Deterministic Finite State Automaton) is an abstract string-searching machine:
+  - Finite number of states (including start and halt)
+  - Exactly one transition for each char in alphabet
+  - Accept if sequence of transitions leads to halt state
+- A key difference between Knuth-Morris-Pratt substring search and brute-force is that:
+  - Need to precompute `dfa[][]` from pattern
+  - Text pointer `i` never decrements
+- DFA on text is at most _N_ character accesses
+
+- We can also add an input stream for DFA:
+
 ```java
 public int search(In in) {
   int i, j;
@@ -406,7 +431,8 @@ public int search(In in) {
 }
 ```
 
-* Here is how we construct the DFA for KMP (Knuth-Morris-Pratt) substring search:
+- Here is how we construct the DFA for KMP (Knuth-Morris-Pratt) substring search:
+
 ```java
 public KMP(String pat) {
   this.pat = pat;
@@ -426,19 +452,22 @@ public KMP(String pat) {
 }
 ```
 
-* The run-time of DFA KMP substring search is *M* character accesses (but space/time proportional to *R * M*)
+- The run-time of DFA KMP substring search is _M_ character accesses (but space/time proportional to _R _ M\*)
 
-* KMP substring search analysis:
-  * KMP substring search accesses no more than *M + N* chars to search for a pattern of length *M* in a text of length *N*
-  * KMP constructs `dfa[][]` in time and space proportional *R * M*
-  * Improved version of KMP constructs `nfa[][]` in time and space proportional to *M*
+- KMP substring search analysis:
+  - KMP substring search accesses no more than _M + N_ chars to search for a pattern of length _M_ in a text of length _N_
+  - KMP constructs `dfa[][]` in time and space proportional _R _ M\*
+  - Improved version of KMP constructs `nfa[][]` in time and space proportional to _M_
 
 ### Boyer-Moore
-* **Intuition**:
-  * Scan characters in pattern from right to left
-  * Can skip as many as *M* text chars when finding one not in the pattern
 
-* Below is a implementation of Boyer-Moore in Java:
+- **Intuition**:
+
+  - Scan characters in pattern from right to left
+  - Can skip as many as _M_ text chars when finding one not in the pattern
+
+- Below is a implementation of Boyer-Moore in Java:
+
 ```java
 public int search(String txt) {
   int N = txt.length();
@@ -462,18 +491,21 @@ public int search(String txt) {
 }
 ```
 
-* Run-time analysis of Boyer-Moore:
-  * Substring search with the Boyer-Moore mismatched character heuristic takes about ~ *N / M* character compares to search for a pattern of length *M* in a text of length *N*
-  * Worst-case can be as bad as ~ *M * N*
-  * Boyer-Moore variant does improve worst case to ~ *3 * N* character compares by adding a KMP-like rule to guard against repetitive patterns
+- Run-time analysis of Boyer-Moore:
+  - Substring search with the Boyer-Moore mismatched character heuristic takes about ~ _N / M_ character compares to search for a pattern of length _M_ in a text of length _N_
+  - Worst-case can be as bad as ~ _M _ N\*
+  - Boyer-Moore variant does improve worst case to ~ _3 _ N\* character compares by adding a KMP-like rule to guard against repetitive patterns
 
 ### Rabin-Karp
-* **Basic idea = modular hashing**:
-  * Compute a hash of pattern characters 0 to `M - 1`
-  * For each `i`, compute a hash of text characters `i` to` M + i - 1`
-  * If pattern hash = text substring hash, check for a match
 
-* Rabin-Karp is implemented as follows:
+- **Basic idea = modular hashing**:
+
+  - Compute a hash of pattern characters 0 to `M - 1`
+  - For each `i`, compute a hash of text characters `i` to`M + i - 1`
+  - If pattern hash = text substring hash, check for a match
+
+- Rabin-Karp is implemented as follows:
+
 ```java
 public class RabinKarp {
   // Pattern hash value
@@ -530,20 +562,21 @@ public class RabinKarp {
 }
 ```
 
-* Rabin-Karp analysis:
-  *  If *Q* is a sufficiently large random prime (about *M * N^2*), then the probability of a false collision is about *1 / N*
-  *  **Monte Carlo version**:
-    * Always runs in linear time
-    * Extremely likely to return correct answer (but not always!)
-  * **Las Vegas version**:
-    * Always returns correct answer
-    * Extremely likely to run in linear time (but worst case is *M * N*)
+- Rabin-Karp analysis:
 
-* In summary for Rabin-Karp:
-  * **Advantages**:
-    * Extends to 2D patterns
-    * Extends to finding multiple patterns
-  * **Disadvantages**:
-    * Arithmetic ops slower than character compares
-    * Las Vegas version requires backup
-    * Poor worst-case guarantee
+  - If _Q_ is a sufficiently large random prime (about _M _ N^2*), then the probability of a false collision is about *1 / N\*
+  - **Monte Carlo version**:
+  - Always runs in linear time
+  - Extremely likely to return correct answer (but not always!)
+  - **Las Vegas version**:
+    - Always returns correct answer
+    - Extremely likely to run in linear time (but worst case is _M _ N\*)
+
+- In summary for Rabin-Karp:
+  - **Advantages**:
+    - Extends to 2D patterns
+    - Extends to finding multiple patterns
+  - **Disadvantages**:
+    - Arithmetic ops slower than character compares
+    - Las Vegas version requires backup
+    - Poor worst-case guarantee
